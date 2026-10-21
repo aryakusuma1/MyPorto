@@ -41,6 +41,8 @@ Tidak ada server atau backend terpisah. Semua logika backend ditangani oleh:
 
 ## 3. Database Schema (Supabase / PostgreSQL)
 
+Skema tabel dan kebijakan keamanan (RLS) di bawah ini dieksekusi menggunakan sistem migrasi Supabase CLI melalui berkas di supabase/migrations/ tanpa mengubah definisi tabel, kolom, constraint, atau policy yang telah dirancang.
+
 ### 3.1 Tabel `profiles`
 ```sql
 CREATE TABLE public.profiles (

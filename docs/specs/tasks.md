@@ -40,20 +40,21 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 11.1_
     - Verifikasi: tidak ada error console saat app dimuat
 
-- [ ] 2. Setup database Supabase
-  - [ ] 2.1 Buat semua tabel di Supabase Dashboard
-    - Jalankan SQL DDL dari design.md §3 untuk semua tabel
-    - Urutan: `profiles` → `skills` → `experiences` → `projects` → `project_details` → `certificates` → `contact_messages`
-    - _Requirements: —_
-    - Verifikasi: semua tabel muncul di Supabase Table Editor
+- [ ] 2. Setup database Supabase via Migration CLI
+  - [ ] 2.1 Inisialisasi Supabase CLI dan berkas migrasi
+    - Jalankan `npx supabase init` di root proyek untuk membuat struktur folder `supabase/migrations/`
+    - Buat berkas migrasi `supabase/migrations/<timestamp>_init_schema.sql` memuat seluruh DDL dari design.md § 3 dan RLS dari design.md § 4 tanpa mengubah struktur data yang direncanakan
+    - _Requirements: -_
+    - Verifikasi: berkas migrasi tersimpan rapi di repositori git
 
-  - [ ] 2.2 Aktifkan dan konfigurasi RLS
-    - Jalankan semua perintah RLS dari design.md §4
+  - [ ] 2.2 Hubungkan ke proyek Supabase dan terapkan migrasi
+    - Hubungkan proyek via `npx supabase link --project-ref <project-id>`
+    - Jalankan `npx supabase db push` untuk mengeksekusi migrasi ke database Supabase Cloud
     - _Requirements: 11.1, 12.1_
-    - Verifikasi: query publik berhasil; query tulis tanpa login gagal dengan error `permission denied`
+    - Verifikasi: semua tabel dan kebijakan RLS aktif di Supabase Table Editor
 
   - [ ] 2.3 Buat Supabase Storage buckets
-    - Buat bucket `portfolio-images` (public) dan `documents` (private)
+    - Buat bucket `portfolio-images` (public) dan `documents` (private) via Supabase Dashboard / Storage
     - Tambahkan RLS policy: public dapat membaca `portfolio-images`; hanya admin yang dapat upload/delete
     - _Requirements: 12.4_
     - Verifikasi: upload gambar berhasil dari admin, URL publik dapat diakses
