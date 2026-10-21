@@ -1,11 +1,28 @@
 ﻿<script setup>
+import AppNavbar from '../components/layout/AppNavbar.vue'
+import HeroSection from '../components/sections/HeroSection.vue'
+import AboutSection from '../components/sections/AboutSection.vue'
+import SkillsSection from '../components/sections/SkillsSection.vue'
+import ProjectsSection from '../components/sections/ProjectsSection.vue'
+import ExperienceSection from '../components/sections/ExperienceSection.vue'
+import CertificatesSection from '../components/sections/CertificatesSection.vue'
+import ContactSection from '../components/sections/ContactSection.vue'
 </script>
 
 <template>
-  <main class="min-h-screen">
-    <div class="max-w-5xl mx-auto px-4 py-16 text-center">
-      <h1 class="text-4xl font-bold font-heading mb-4 text-ink">Portofolio Arya</h1>
-      <p class="text-ink-muted">Sedang disiapkan sesuai spesifikasi SDD...</p>
-    </div>
-  </main>
+  <div class="min-h-screen bg-surface text-ink flex flex-col">
+    <!-- Sticky Navigation Bar -->
+    <AppNavbar />
+
+    <!-- Main Content One-Page Sections -->
+    <main class="flex-1">
+      <HeroSection />
+      <AboutSection />
+      <SkillsSection />
+      <ProjectsSection />
+      <ExperienceSection />
+      <CertificatesSection />
+      <ContactSection />
+    </main>
+  </div>
 </template>
