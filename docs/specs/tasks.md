@@ -41,7 +41,7 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - Verifikasi: tidak ada error console saat app dimuat
 
 - [ ] 2. Setup database Supabase via Migration CLI
-  - [ ] 2.1 Inisialisasi Supabase CLI dan berkas migrasi
+  - [x] 2.1 Inisialisasi Supabase CLI dan berkas migrasi
     - Jalankan `npx supabase init` di root proyek untuk membuat struktur folder `supabase/migrations/`
     - Buat berkas migrasi `supabase/migrations/<timestamp>_init_schema.sql` memuat seluruh DDL dari design.md § 3 dan RLS dari design.md § 4 tanpa mengubah struktur data yang direncanakan
     - _Requirements: -_
