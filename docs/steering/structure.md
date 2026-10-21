@@ -1,4 +1,4 @@
-﻿# Struktur Proyek
+# Struktur Proyek
 
 ## Pohon Direktori
 
@@ -17,6 +17,9 @@ Portofolio Arya/
 |
 |-- public/
 |   `-- favicon.ico
+|
+|-- supabase/
+|   `-- migrations/               # Berkas migrasi database Supabase
 |
 `-- src/
     |-- assets/
@@ -162,3 +165,4 @@ Buat komponen reusable hanya jika:
 1. Digunakan di 2 tempat atau lebih
 2. Memiliki tampilan atau perilaku yang konsisten
 3. Mengurangi duplikasi kode secara nyata
+

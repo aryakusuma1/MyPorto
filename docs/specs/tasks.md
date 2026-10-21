@@ -40,49 +40,50 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 11.1_
     - Verifikasi: tidak ada error console saat app dimuat
 
-- [ ] 2. Setup database Supabase
-  - [ ] 2.1 Buat semua tabel di Supabase Dashboard
-    - Jalankan SQL DDL dari design.md §3 untuk semua tabel
-    - Urutan: `profiles` → `skills` → `experiences` → `projects` → `project_details` → `certificates` → `contact_messages`
-    - _Requirements: —_
-    - Verifikasi: semua tabel muncul di Supabase Table Editor
+- [x] 2. Setup database Supabase via Migration CLI
+  - [x] 2.1 Inisialisasi Supabase CLI dan berkas migrasi
+    - Jalankan `npx supabase init` di root proyek untuk membuat struktur folder `supabase/migrations/`
+    - Buat berkas migrasi `supabase/migrations/<timestamp>_init_schema.sql` memuat seluruh DDL dari design.md § 3 dan RLS dari design.md § 4 tanpa mengubah struktur data yang direncanakan
+    - _Requirements: -_
+    - Verifikasi: berkas migrasi tersimpan rapi di repositori git
 
-  - [ ] 2.2 Aktifkan dan konfigurasi RLS
-    - Jalankan semua perintah RLS dari design.md §4
+  - [x] 2.2 Hubungkan ke proyek Supabase dan terapkan migrasi
+    - Hubungkan proyek via `npx supabase link --project-ref <project-id>`
+    - Jalankan `npx supabase db push` untuk mengeksekusi migrasi ke database Supabase Cloud
     - _Requirements: 11.1, 12.1_
-    - Verifikasi: query publik berhasil; query tulis tanpa login gagal dengan error `permission denied`
+    - Verifikasi: semua tabel dan kebijakan RLS aktif di Supabase Table Editor
 
-  - [ ] 2.3 Buat Supabase Storage buckets
-    - Buat bucket `portfolio-images` (public) dan `documents` (private)
+  - [x] 2.3 Buat Supabase Storage buckets
+    - Buat bucket `portfolio-images` (public) dan `documents` (private) via Supabase Dashboard / Storage
     - Tambahkan RLS policy: public dapat membaca `portfolio-images`; hanya admin yang dapat upload/delete
     - _Requirements: 12.4_
     - Verifikasi: upload gambar berhasil dari admin, URL publik dapat diakses
 
-- [ ] 3. Komponen UI dasar
-  - [ ] 3.1 Buat `src/components/ui/BaseButton.vue`
+- [x] 3. Komponen UI dasar
+  - [x] 3.1 Buat `src/components/ui/BaseButton.vue`
     - Props: `variant` ('primary' | 'secondary' | 'ghost'), `size` ('sm' | 'md' | 'lg'), `disabled`, `loading`
     - Emit: `click`
     - _Requirements: —_
 
-  - [ ] 3.2 Buat `src/components/ui/BaseCard.vue`
+  - [x] 3.2 Buat `src/components/ui/BaseCard.vue`
     - Props: `hoverable` (boolean)
     - Slot: default
     - _Requirements: —_
 
-  - [ ] 3.3 Buat `src/components/ui/BaseBadge.vue`
+  - [x] 3.3 Buat `src/components/ui/BaseBadge.vue`
     - Props: `label` (string), `variant` ('default' | 'accent')
     - _Requirements: —_
 
-  - [ ] 3.4 Buat `src/components/ui/SectionTitle.vue`
+  - [x] 3.4 Buat `src/components/ui/SectionTitle.vue`
     - Props: `tag` (string), `title` (string), `subtitle` (string, optional)
     - _Requirements: —_
 
-  - [ ] 3.5 Buat `src/components/ui/SkeletonLoader.vue`
+  - [x] 3.5 Buat `src/components/ui/SkeletonLoader.vue`
     - Props: `type` ('card' | 'text' | 'avatar'), `count` (number)
     - Gunakan `animate-pulse` dari Tailwind
     - _Requirements: 5.5, 8.4_
 
-  - [ ] 3.6 Buat `src/components/layout/AppNavbar.vue`
+  - [x] 3.6 Buat `src/components/layout/AppNavbar.vue`
     - Sticky top, blur backdrop
     - Daftar tautan navigasi ke semua section
     - State aktif berdasarkan scroll (gunakan composable `useScrollSpy`)
@@ -90,84 +91,84 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
     - Verifikasi: smooth scroll bekerja; tautan aktif berubah saat scroll
 
-  - [ ] 3.7 Buat `src/composables/useScrollSpy.js`
+  - [x] 3.7 Buat `src/composables/useScrollSpy.js`
     - Gunakan `IntersectionObserver` untuk mendeteksi section aktif
     - Return: `{ activeSection }` (ref berisi id section aktif)
     - _Requirements: 1.4_
 
-  - [ ] 3.8 Buat `src/composables/useIntersection.js`
+  - [x] 3.8 Buat `src/composables/useIntersection.js`
     - Gunakan `IntersectionObserver` untuk memicu animasi fade-in saat elemen masuk viewport
     - Return: `{ observe }` (fungsi yang menerima elemen ref)
     - _Requirements: 4.3_
 
 - [ ] 4. Halaman utama — section publik
-  - [ ] 4.1 Buat `HeroSection.vue`
+  - [x] 4.1 Buat `HeroSection.vue`
     - Fetch data profil dari `profile.store.js`
     - Tampilkan nama, title (dengan typing effect sederhana), tagline, foto
     - Tombol CTA scroll ke `#projects` dan `#footer`
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 4.2 Buat `profile.store.js` dengan action `fetchProfile()`
+  - [x] 4.2 Buat `profile.store.js` dengan action `fetchProfile()`
     - Query: `supabase.from('profiles').select('*').single()`
     - _Requirements: 2.1, 3.1_
 
-  - [ ] 4.3 Buat `AboutSection.vue`
+  - [x] 4.3 Buat `AboutSection.vue`
     - Tampilkan foto, bio, fakta-fakta
     - Tombol download CV — tersembunyi jika `cv_url` null
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-  - [ ] 4.4 Buat `skill.store.js` dengan action `fetchSkills()`
+  - [x] 4.4 Buat `skill.store.js` dengan action `fetchSkills()`
     - Query: `supabase.from('skills').select('*').order('category').order('sort_order')`
     - _Requirements: 4.1_
 
-  - [ ] 4.5 Buat `SkillsSection.vue`
+  - [x] 4.5 Buat `SkillsSection.vue`
     - Kelompokkan skills per kategori menggunakan computed
     - Tampilkan indikator level dengan animasi saat masuk viewport
     - _Requirements: 4.1, 4.2, 4.3_
 
-  - [ ] 4.6 Buat `project.store.js` dengan action `fetchProjects()`
+  - [x] 4.6 Buat `project.store.js` dengan action `fetchProjects()`
     - Query: `supabase.from('projects').select('id,title,slug,short_desc,cover_url,tech_stack,category,status,featured').order('sort_order')`
     - _Requirements: 5.1_
 
-  - [ ] 4.7 Buat `src/components/project/ProjectCard.vue`
+  - [x] 4.7 Buat `src/components/project/ProjectCard.vue`
     - Props: `project` (object)
     - Emit: `click` dengan slug project
     - Tampilkan: cover, judul, deskripsi singkat, badge tech stack
     - _Requirements: 5.2_
 
-  - [ ] 4.8 Buat `ProjectsSection.vue`
+  - [x] 4.8 Buat `ProjectsSection.vue`
     - Tampilkan skeleton saat loading, ProjectCard saat data tersedia, pesan kosong jika tidak ada data
     - Klik card → navigate ke `/projects/:slug`
     - _Requirements: 5.1, 5.3, 5.4, 5.5_
 
-  - [ ] 4.9 Buat `experience.store.js` dengan action `fetchExperiences()`
+  - [x] 4.9 Buat `experience.store.js` dengan action `fetchExperiences()`
     - Query: `supabase.from('experiences').select('*').order('start_date', { ascending: false })`
     - _Requirements: 7.1_
 
-  - [ ] 4.10 Buat `ExperienceSection.vue`
+  - [x] 4.10 Buat `ExperienceSection.vue`
     - Tampilkan timeline vertikal, bedakan tipe `work` dan `education` secara visual
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 4.11 Buat `certificate.store.js` dengan action `fetchCertificates()`
+  - [x] 4.11 Buat `certificate.store.js` dengan action `fetchCertificates()`
     - Query: `supabase.from('certificates').select('*').order('sort_order')`
     - _Requirements: 8.1_
 
-  - [ ] 4.12 Buat `src/components/certificate/CertificateCard.vue`
+  - [x] 4.12 Buat `src/components/certificate/CertificateCard.vue`
     - Props: `certificate` (object)
     - Tampilkan: thumbnail, nama, issuer, tanggal
     - _Requirements: 8.2_
 
-  - [ ] 4.13 Buat `CertificatesSection.vue`
+  - [x] 4.13 Buat `CertificatesSection.vue`
     - Tampilkan skeleton saat loading, CertificateCard saat data tersedia
     - Klik card → navigate ke `/certificates/:id`
     - _Requirements: 8.1, 8.3, 8.4_
 
-  - [ ] 4.14 Buat `ContactSection.vue` (Footer)
+  - [x] 4.14 Buat `ContactSection.vue` (Footer)
     - Tampilkan tautan email, LinkedIn, GitHub
     - Teks copyright dengan tahun dinamis
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-  - [ ] 4.15 Rakit semua section di `HomeView.vue`
+  - [x] 4.15 Rakit semua section di `HomeView.vue`
     - Import dan render semua section dengan id yang sesuai (#hero, #about, dst)
     - _Requirements: 1.1_
     - Verifikasi: semua section tampil, navbar scroll spy bekerja

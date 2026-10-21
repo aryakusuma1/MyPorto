@@ -1,4 +1,4 @@
-﻿# Teknologi
+# Teknologi
 
 ## Stack Inti
 
@@ -13,6 +13,7 @@
 | Backend & Database | Supabase (PostgreSQL + Auth + Storage) |
 | Supabase SDK | `@supabase/supabase-js` v2 |
 | Icon | Lucide Vue Next (`lucide-vue-next`) |
+| Database Migration | Supabase CLI (`supabase`) |
 
 ## Tipografi (Google Fonts)
 
@@ -84,6 +85,11 @@ npm run dev
 
 # Build produksi
 npm run build
+
+# Migrasi database (Supabase CLI)
+npx supabase init
+npx supabase link --project-ref <project-ref>
+npx supabase db push
 ```
 
 ## Catatan Teknis
