@@ -40,50 +40,50 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 11.1_
     - Verifikasi: tidak ada error console saat app dimuat
 
-- [ ] 2. Setup database Supabase via Migration CLI
+- [x] 2. Setup database Supabase via Migration CLI
   - [x] 2.1 Inisialisasi Supabase CLI dan berkas migrasi
     - Jalankan `npx supabase init` di root proyek untuk membuat struktur folder `supabase/migrations/`
     - Buat berkas migrasi `supabase/migrations/<timestamp>_init_schema.sql` memuat seluruh DDL dari design.md § 3 dan RLS dari design.md § 4 tanpa mengubah struktur data yang direncanakan
     - _Requirements: -_
     - Verifikasi: berkas migrasi tersimpan rapi di repositori git
 
-  - [ ] 2.2 Hubungkan ke proyek Supabase dan terapkan migrasi
+  - [x] 2.2 Hubungkan ke proyek Supabase dan terapkan migrasi
     - Hubungkan proyek via `npx supabase link --project-ref <project-id>`
     - Jalankan `npx supabase db push` untuk mengeksekusi migrasi ke database Supabase Cloud
     - _Requirements: 11.1, 12.1_
     - Verifikasi: semua tabel dan kebijakan RLS aktif di Supabase Table Editor
 
-  - [ ] 2.3 Buat Supabase Storage buckets
+  - [x] 2.3 Buat Supabase Storage buckets
     - Buat bucket `portfolio-images` (public) dan `documents` (private) via Supabase Dashboard / Storage
     - Tambahkan RLS policy: public dapat membaca `portfolio-images`; hanya admin yang dapat upload/delete
     - _Requirements: 12.4_
     - Verifikasi: upload gambar berhasil dari admin, URL publik dapat diakses
 
-- [ ] 3. Komponen UI dasar
-  - [ ] 3.1 Buat `src/components/ui/BaseButton.vue`
+- [x] 3. Komponen UI dasar
+  - [x] 3.1 Buat `src/components/ui/BaseButton.vue`
     - Props: `variant` ('primary' | 'secondary' | 'ghost'), `size` ('sm' | 'md' | 'lg'), `disabled`, `loading`
     - Emit: `click`
     - _Requirements: —_
 
-  - [ ] 3.2 Buat `src/components/ui/BaseCard.vue`
+  - [x] 3.2 Buat `src/components/ui/BaseCard.vue`
     - Props: `hoverable` (boolean)
     - Slot: default
     - _Requirements: —_
 
-  - [ ] 3.3 Buat `src/components/ui/BaseBadge.vue`
+  - [x] 3.3 Buat `src/components/ui/BaseBadge.vue`
     - Props: `label` (string), `variant` ('default' | 'accent')
     - _Requirements: —_
 
-  - [ ] 3.4 Buat `src/components/ui/SectionTitle.vue`
+  - [x] 3.4 Buat `src/components/ui/SectionTitle.vue`
     - Props: `tag` (string), `title` (string), `subtitle` (string, optional)
     - _Requirements: —_
 
-  - [ ] 3.5 Buat `src/components/ui/SkeletonLoader.vue`
+  - [x] 3.5 Buat `src/components/ui/SkeletonLoader.vue`
     - Props: `type` ('card' | 'text' | 'avatar'), `count` (number)
     - Gunakan `animate-pulse` dari Tailwind
     - _Requirements: 5.5, 8.4_
 
-  - [ ] 3.6 Buat `src/components/layout/AppNavbar.vue`
+  - [x] 3.6 Buat `src/components/layout/AppNavbar.vue`
     - Sticky top, blur backdrop
     - Daftar tautan navigasi ke semua section
     - State aktif berdasarkan scroll (gunakan composable `useScrollSpy`)
@@ -91,12 +91,12 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
     - Verifikasi: smooth scroll bekerja; tautan aktif berubah saat scroll
 
-  - [ ] 3.7 Buat `src/composables/useScrollSpy.js`
+  - [x] 3.7 Buat `src/composables/useScrollSpy.js`
     - Gunakan `IntersectionObserver` untuk mendeteksi section aktif
     - Return: `{ activeSection }` (ref berisi id section aktif)
     - _Requirements: 1.4_
 
-  - [ ] 3.8 Buat `src/composables/useIntersection.js`
+  - [x] 3.8 Buat `src/composables/useIntersection.js`
     - Gunakan `IntersectionObserver` untuk memicu animasi fade-in saat elemen masuk viewport
     - Return: `{ observe }` (fungsi yang menerima elemen ref)
     - _Requirements: 4.3_
