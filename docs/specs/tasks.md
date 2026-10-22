@@ -101,7 +101,7 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - Return: `{ observe }` (fungsi yang menerima elemen ref)
     - _Requirements: 4.3_
 
-- [ ] 4. Halaman utama — section publik
+- [x] 4. Halaman utama — section publik
   - [x] 4.1 Buat `HeroSection.vue`
     - Fetch data profil dari `profile.store.js`
     - Tampilkan nama, title (dengan typing effect sederhana), tagline, foto
@@ -173,75 +173,75 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - _Requirements: 1.1_
     - Verifikasi: semua section tampil, navbar scroll spy bekerja
 
-- [ ] 5. Checkpoint — Halaman publik
+- [x] 5. Checkpoint — Halaman publik
   - Pastikan semua section tampil dengan data dari Supabase
   - Pastikan skeleton loading tampil saat data belum tersedia
   - Pastikan navigasi navbar bekerja dengan smooth scroll
   - Tanya pemilik jika ada yang perlu disesuaikan sebelum melanjutkan
 
-- [ ] 6. Halaman detail
-  - [ ] 6.1 Tambahkan action `fetchProjectBySlug(slug)` di `project.store.js`
+- [x] 6. Halaman detail
+  - [x] 6.1 Tambahkan action `fetchProjectBySlug(slug)` di `project.store.js`
     - Query: `supabase.from('projects').select('*, project_details(*)').eq('slug', slug).single()`
     - _Requirements: 6.1_
 
-  - [ ] 6.2 Buat `ProjectDetailView.vue`
+  - [x] 6.2 Buat `ProjectDetailView.vue`
     - Ambil slug dari `$route.params.slug`
     - Tampilkan semua field dari design.md §2 (overview, tech stack, arsitektur, fitur, tantangan, screenshots, tautan)
     - Tombol kembali ke `/#projects`
     - Redirect ke 404 jika slug tidak ditemukan
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ] 6.3 Tambahkan action `fetchCertificateById(id)` di `certificate.store.js`
+  - [x] 6.3 Tambahkan action `fetchCertificateById(id)` di `certificate.store.js`
     - Query: `supabase.from('certificates').select('*').eq('id', id).single()`
     - _Requirements: 9.1_
 
-  - [ ] 6.4 Buat `CertificateDetailView.vue`
+  - [x] 6.4 Buat `CertificateDetailView.vue`
     - Ambil id dari `$route.params.id`
     - Tampilkan gambar, nama, issuer, tanggal, kategori, deskripsi, tautan verifikasi
     - Tombol kembali ke `/#certificates`
     - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 7. Admin panel
-  - [ ] 7.1 Buat `LoginView.vue`
+- [x] 7. Admin panel
+  - [x] 7.1 Buat `LoginView.vue`
     - Form email & password
     - Panggil `auth.store.signIn()` saat submit
     - Tampilkan error jika gagal
     - Redirect ke `/admin/dashboard` jika berhasil
     - _Requirements: 11.2, 11.3, 11.4, 11.5_
 
-  - [ ] 7.2 Buat `AdminLayout.vue` dengan `AdminSidebar.vue`
+  - [x] 7.2 Buat `AdminLayout.vue` dengan `AdminSidebar.vue`
     - Sidebar dengan menu navigasi antar halaman admin
     - Tombol Keluar yang memanggil `auth.store.signOut()`
     - _Requirements: 11.6_
 
-  - [ ] 7.3 Buat `ImageUploader.vue`
+  - [x] 7.3 Buat `ImageUploader.vue`
     - Props: `bucket`, `path`, `currentUrl`
     - Upload file ke Supabase Storage, emit URL publik setelah berhasil
     - _Requirements: 12.4_
 
-  - [ ] 7.4 Buat CRUD Projects (`ProjectsView.vue` + `ProjectForm.vue`)
+  - [x] 7.4 Buat CRUD Projects (`ProjectsView.vue` + `ProjectForm.vue`)
     - Daftar semua project dengan tombol Edit dan Hapus
     - Form tambah/edit: title, slug (auto-generate dari title), short_desc, tech_stack, category, status, featured, cover_url, github_url, demo_url
     - Tab terpisah untuk mengisi project_details (overview, architecture, diagram, features, challenges, screenshots)
     - Konfirmasi sebelum hapus
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-  - [ ] 7.5 Buat CRUD Certificates (`CertificatesView.vue` + `CertificateForm.vue`)
+  - [x] 7.5 Buat CRUD Certificates (`CertificatesView.vue` + `CertificateForm.vue`)
     - Daftar semua sertifikat dengan tombol Edit dan Hapus
     - Form: title, issuer, issue_date, expiry_date, credential_url, image_url, category, description
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-  - [ ] 7.6 Buat CRUD Skills (`SkillsView.vue` + `SkillForm.vue`)
+  - [x] 7.6 Buat CRUD Skills (`SkillsView.vue` + `SkillForm.vue`)
     - Daftar semua skill dengan tombol Edit dan Hapus
     - Form: name, category, level, sort_order
     - _Requirements: 12.1, 12.2, 12.3_
 
-  - [ ] 7.7 Buat CRUD Experience & Education (`ExperienceView.vue` + `ExperienceForm.vue`)
+  - [x] 7.7 Buat CRUD Experience & Education (`ExperienceView.vue` + `ExperienceForm.vue`)
     - Daftar semua entri dengan tombol Edit dan Hapus
     - Form: company, role, type (work/education), start_date, end_date, description
     - _Requirements: 12.1, 12.2, 12.3_
 
-  - [ ] 7.8 Buat halaman pesan masuk (`MessagesView.vue`)
+  - [x] 7.8 Buat halaman pesan masuk (`MessagesView.vue`)
     - Daftar semua pesan dengan status baca/belum
     - Klik pesan untuk melihat detail dan menandai sudah dibaca
     - _Requirements: 12.5, 12.6_

@@ -1,11 +1,10 @@
-﻿<script setup>
+<script setup>
 import { computed } from 'vue'
 import { Download, Code2, Sparkles, BookOpen, MapPin } from 'lucide-vue-next'
 import { useProfileStore } from '../../stores/profile.store'
 import SectionTitle from '../ui/SectionTitle.vue'
 import BaseButton from '../ui/BaseButton.vue'
 import BaseCard from '../ui/BaseCard.vue'
-import defaultHeroImg from '../../assets/hero.png'
 
 const profileStore = useProfileStore()
 
@@ -14,7 +13,10 @@ const defaultBio =
 
 const profile = computed(() => profileStore.profile)
 
-const bioText = computed(() => profile.value?.bio || defaultBio)
+const bioText = computed(() => {
+  return profile.value?.bio || defaultBio
+})
+
 const cvUrl = computed(() => profile.value?.cv_url || null)
 
 const facts = [
@@ -36,7 +38,7 @@ const facts = [
   {
     icon: MapPin,
     title: 'Domisili',
-    desc: 'Indonesia — Terbuka untuk peluang kerja remote maupun on-site.',
+    desc: 'Indonesia - Terbuka untuk peluang kerja remote maupun on-site.',
   },
 ]
 
@@ -59,15 +61,22 @@ function downloadCV() {
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <!-- Bio Column -->
         <div class="lg:col-span-6 space-y-6">
-          <p class="text-ink text-base sm:text-lg leading-relaxed">
+          <!-- Skeleton Loading for Bio -->
+          <div v-if="profileStore.loading" class="space-y-3 animate-pulse">
+            <div class="h-5 bg-surface-raised rounded w-full"></div>
+            <div class="h-5 bg-surface-raised rounded w-5/6"></div>
+            <div class="h-5 bg-surface-raised rounded w-4/6"></div>
+          </div>
+          <p v-else class="text-ink text-base sm:text-lg leading-relaxed animate-fade-in">
             {{ bioText }}
           </p>
+
           <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
             Saya percaya bahwa kode yang hebat bukan hanya yang bisa berjalan, melainkan kode yang mudah dipelihara, teruji, dan terdokumentasi dengan baik. Setiap proyek dikerjakan dengan perhatian penuh pada detail dan performa.
           </p>
 
           <!-- Download CV Button -->
-          <div v-if="cvUrl" class="pt-2">
+          <div v-if="cvUrl && !profileStore.loading" class="pt-2 animate-fade-in">
             <BaseButton variant="primary" size="md" @click="downloadCV">
               <Download class="w-4 h-4 mr-1" />
               Unduh Curriculum Vitae (PDF)
@@ -78,13 +87,13 @@ function downloadCV() {
         <!-- Facts Grid Column -->
         <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <BaseCard v-for="(fact, index) in facts" :key="index" :hoverable="true" class="space-y-2">
-            <div class="w-10 h-10 rounded-lg bg-surface-raised border border-border flex items-center justify-center text-accent mb-3">
-              <component :is="fact.icon" class="w-5 h-5" />
+            <div class="w-9 h-9 rounded-lg bg-surface-raised border border-border flex items-center justify-center text-accent mb-2">
+              <component :is="fact.icon" class="w-4 h-4" />
             </div>
-            <h3 class="font-heading font-semibold text-ink text-base">
+            <h4 class="font-heading font-semibold text-sm text-ink">
               {{ fact.title }}
-            </h3>
-            <p class="text-ink-muted text-xs sm:text-sm leading-relaxed">
+            </h4>
+            <p class="text-xs text-ink-muted leading-relaxed">
               {{ fact.desc }}
             </p>
           </BaseCard>
@@ -92,4 +101,4 @@ function downloadCV() {
       </div>
     </div>
   </section>
-</template>
+</template>\n
