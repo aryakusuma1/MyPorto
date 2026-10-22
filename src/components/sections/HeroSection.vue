@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useProfileStore } from '../../stores/profile.store'
 import BaseButton from '../ui/BaseButton.vue'
 import defaultHeroImg from '../../assets/hero.png'
@@ -17,21 +17,47 @@ const defaultProfile = {
 
 const profile = computed(() => profileStore.profile || defaultProfile)
 
-// Typing effect untuk role/title
-const roles = [
+// Typing effect untuk role/title (terhubung dinamis dengan Supabase)
+const defaultRoles = [
   'Software Developer',
   'Frontend Engineer',
   'Backend Specialist',
   'Vue.js Enthusiast',
 ]
+
+const roles = computed(() => {
+  if (profile.value?.title) {
+    const parsed = profile.value.title
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
+    if (parsed.length > 0) return parsed
+  }
+  return defaultRoles
+})
 const displayedRole = ref('')
 let roleIndex = 0
 let charIndex = 0
 let isDeleting = false
 let typingTimeout = null
 
+watch(roles, () => {
+  if (typingTimeout) clearTimeout(typingTimeout)
+  roleIndex = 0
+  charIndex = 0
+  isDeleting = false
+  typeLoop()
+})
+
 function typeLoop() {
-  const currentRole = roles[roleIndex]
+  const currentRoles = roles.value
+  if (!currentRoles || currentRoles.length === 0) return
+
+  if (roleIndex >= currentRoles.length) {
+    roleIndex = 0
+  }
+
+  const currentRole = currentRoles[roleIndex]
 
   if (isDeleting) {
     displayedRole.value = currentRole.substring(0, charIndex - 1)
@@ -48,7 +74,7 @@ function typeLoop() {
     isDeleting = true
   } else if (isDeleting && charIndex === 0) {
     isDeleting = false
-    roleIndex = (roleIndex + 1) % roles.length
+    roleIndex = (roleIndex + 1) % currentRoles.length
     typingSpeed = 400 // Jeda sebelum mulai mengetik kata berikutnya
   }
 

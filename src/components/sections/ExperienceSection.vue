@@ -28,7 +28,7 @@ onMounted(() => {
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionTitle
         tag="Perjalanan Karir"
-        title="Pengalaman & Pendidikan"
+        title="Pendidikan & Pengalaman"
         subtitle="Linimasa riwayat pekerjaan profesional dan latar belakang akademik yang telah saya tempuh."
       />
 
