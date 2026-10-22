@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useProfileStore } from '../../stores/profile.store'
 import BaseButton from '../ui/BaseButton.vue'
@@ -6,7 +6,7 @@ import defaultHeroImg from '../../assets/hero.png'
 
 const profileStore = useProfileStore()
 
-// Fallback profil jika data di Supabase belum diisi
+// Fallback profil jika data di Supabase benar-benar kosong setelah loading selesai
 const defaultProfile = {
   full_name: 'Arya Kusuma',
   title: 'Software Developer',
@@ -35,21 +35,16 @@ const roles = computed(() => {
   }
   return defaultRoles
 })
+
 const displayedRole = ref('')
 let roleIndex = 0
 let charIndex = 0
 let isDeleting = false
 let typingTimeout = null
 
-watch(roles, () => {
-  if (typingTimeout) clearTimeout(typingTimeout)
-  roleIndex = 0
-  charIndex = 0
-  isDeleting = false
-  typeLoop()
-})
-
 function typeLoop() {
+  if (profileStore.loading) return
+
   const currentRoles = roles.value
   if (!currentRoles || currentRoles.length === 0) return
 
@@ -81,6 +76,29 @@ function typeLoop() {
   typingTimeout = setTimeout(typeLoop, typingSpeed)
 }
 
+watch(
+  () => profileStore.loading,
+  (isLoading) => {
+    if (!isLoading) {
+      if (typingTimeout) clearTimeout(typingTimeout)
+      roleIndex = 0
+      charIndex = 0
+      isDeleting = false
+      typeLoop()
+    }
+  }
+)
+
+watch(roles, () => {
+  if (!profileStore.loading) {
+    if (typingTimeout) clearTimeout(typingTimeout)
+    roleIndex = 0
+    charIndex = 0
+    isDeleting = false
+    typeLoop()
+  }
+})
+
 function scrollTo(id) {
   const element = document.getElementById(id)
   if (element) {
@@ -88,9 +106,11 @@ function scrollTo(id) {
   }
 }
 
-onMounted(() => {
-  profileStore.fetchProfile()
-  typeLoop()
+onMounted(async () => {
+  await profileStore.fetchProfile()
+  if (!profileStore.loading) {
+    typeLoop()
+  }
 })
 
 onUnmounted(() => {
@@ -106,7 +126,38 @@ onUnmounted(() => {
     class="min-h-[85vh] flex items-center justify-center py-16 sm:py-24"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <!-- Loading Skeleton State -->
+      <div
+        v-if="profileStore.loading"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
+      >
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left animate-pulse">
+          <div class="inline-block h-7 w-56 rounded-full bg-surface-raised mx-auto lg:mx-0"></div>
+          <div class="space-y-3">
+            <div class="h-5 w-24 bg-surface-raised rounded mx-auto lg:mx-0"></div>
+            <div class="h-12 sm:h-14 w-3/4 max-w-md bg-surface-raised rounded-xl mx-auto lg:mx-0"></div>
+            <div class="h-9 w-64 bg-surface-raised rounded-lg mx-auto lg:mx-0"></div>
+          </div>
+          <div class="space-y-2 max-w-xl mx-auto lg:mx-0">
+            <div class="h-5 bg-surface-raised rounded w-full"></div>
+            <div class="h-5 bg-surface-raised rounded w-4/5 mx-auto lg:mx-0"></div>
+          </div>
+          <div class="flex items-center justify-center lg:justify-start gap-4 pt-4">
+            <div class="h-12 w-36 bg-surface-raised rounded-xl"></div>
+            <div class="h-12 w-36 bg-surface-raised rounded-xl"></div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex justify-center lg:justify-end animate-pulse">
+          <div class="w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-2xl bg-surface-raised border border-border"></div>
+        </div>
+      </div>
+
+      <!-- Loaded Data State -->
+      <div
+        v-else
+        class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center animate-fade-in"
+      >
         <!-- Text Column -->
         <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-raised border border-border text-xs font-medium text-accent">
@@ -164,4 +215,4 @@ onUnmounted(() => {
       </div>
     </div>
   </section>
-</template>
+</template>\n

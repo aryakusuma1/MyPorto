@@ -40,6 +40,8 @@
 3. THE Hero_Section SHALL menyediakan tombol "Lihat Project" yang menggulir halaman ke section Projects.
 4. THE Hero_Section SHALL menyediakan tombol "Hubungi Saya" yang menggulir halaman ke section Footer (tautan kontak).
 5. THE Hero_Section SHALL menampilkan animasi teks bergantian (typing effect) pada bagian title/role.
+6. WHILE data profil sedang dimuat dari Supabase, THE Hero_Section SHALL menampilkan skeleton loader dan TIDAK menampilkan data fallback sebelum proses pemuatan selesai.
+7. IF data profil di Supabase kosong setelah proses pemuatan selesai, THEN THE Hero_Section MAY menampilkan data default/fallback sebagai jaring pengaman.
 
 ---
 
@@ -53,6 +55,7 @@
 2. THE About_Section SHALL menampilkan beberapa fakta menarik tentang diri pemilik dalam format yang mudah dibaca.
 3. THE About_Section SHALL menyediakan tombol untuk mengunduh CV pemilik dalam format PDF.
 4. IF CV belum diunggah oleh Admin, THEN THE About_Section SHALL menyembunyikan tombol unduh CV.
+5. WHILE data bio/profil sedang dimuat dari Supabase, THE About_Section SHALL menampilkan skeleton loader dan TIDAK menampilkan bio fallback sebelum proses pemuatan selesai.
 
 ---
 
@@ -104,6 +107,8 @@
 2. THE Experience_Section SHALL menampilkan pengalaman kerja dan riwayat pendidikan dalam satu timeline yang dibedakan secara visual.
 3. THE Timeline_Item SHALL menampilkan: nama perusahaan/institusi, jabatan/jurusan, periode (bulan & tahun mulai hingga selesai atau "Sekarang"), dan deskripsi singkat.
 4. THE Experience_Section SHALL mengurutkan entri dari yang terbaru ke terlama.
+5. THE Experience_Section SHALL menggunakan lebar container utama yang konsisten (max-w-6xl) agar perataan judul section (SectionTitle) sejajar presisi dengan section lainnya di halaman utama, sementara kontainer linimasa (Timeline Container) diposisikan terpusat secara simetris di tengah layar (mx-auto) agar kartu pengalaman kerja dan pendidikan tidak timpang ke kiri.
+6. THE Timeline_Node_Icon SHALL memiliki latar belakang solid dan layering yang tepat (z-index) sehingga garis linimasa vertikal tidak menembus atau menumpuk secara transparan di dalam ikon.
 
 ---
 
