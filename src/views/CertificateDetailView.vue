@@ -1,5 +1,5 @@
-﻿<script setup>
-import { computed, onMounted } from 'vue'
+<script setup>
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from 'lucide-vue-next'
 import { useCertificateStore } from '../stores/certificate.store'
+import { useIntersection } from '../composables/useIntersection'
 import AppNavbar from '../components/layout/AppNavbar.vue'
 import BaseButton from '../components/ui/BaseButton.vue'
 import BaseBadge from '../components/ui/BaseBadge.vue'
@@ -22,6 +23,15 @@ const certificateStore = useCertificateStore()
 
 const id = computed(() => route.params.id)
 const cert = computed(() => certificateStore.currentCertificate)
+
+const isHeaderRevealed = ref(false)
+
+// Section refs & intersection observers for scroll reveal
+const descRef = ref(null)
+const verifyRef = ref(null)
+
+const { isVisible: descVisible, observe: observeDesc } = useIntersection({ threshold: 0.15 })
+const { isVisible: verifyVisible, observe: observeVerify } = useIntersection({ threshold: 0.15 })
 
 function goBack() {
   router.push('/#certificates')
@@ -40,10 +50,23 @@ function openVerification() {
   }
 }
 
+function initObservers() {
+  nextTick(() => {
+    setTimeout(() => {
+      isHeaderRevealed.value = true
+    }, 50)
+
+    if (descRef.value) observeDesc(descRef.value)
+    if (verifyRef.value) observeVerify(verifyRef.value)
+  })
+}
+
 onMounted(async () => {
   const result = await certificateStore.fetchCertificateById(id.value)
   if (!result && !certificateStore.loading) {
     router.replace({ name: 'not-found' })
+  } else {
+    initObservers()
   }
 })
 </script>
@@ -75,8 +98,11 @@ onMounted(async () => {
 
         <!-- Certificate Detail Content -->
         <article v-else-if="cert" class="space-y-8">
-          <!-- Header Area -->
-          <header class="space-y-3">
+          <!-- Header Area with Entrance Animation -->
+          <header
+            class="space-y-3 transition-all duration-700 ease-out transform"
+            :class="isHeaderRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             <BaseBadge variant="accent">
               {{ cert.category || 'Sertifikasi Kompetensi' }}
             </BaseBadge>
@@ -103,8 +129,11 @@ onMounted(async () => {
             </div>
           </header>
 
-          <!-- Certificate Image Display or Dignified Placeholder -->
-          <div class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg">
+          <!-- Certificate Image Display with Scale-in Animation -->
+          <div
+            class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg transition-all duration-700 delay-150 ease-out transform"
+            :class="isHeaderRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"
+          >
             <img
               v-if="cert.image_url"
               :src="cert.image_url"
@@ -130,18 +159,30 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Description Section -->
-          <BaseCard v-if="cert.description" :hoverable="false" class="space-y-2">
-            <h3 class="font-heading font-semibold text-ink text-base">
-              Keterangan Sertifikasi
-            </h3>
-            <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
-              {{ cert.description }}
-            </p>
-          </BaseCard>
+          <!-- Description Section (Scroll Reveal) -->
+          <div
+            v-if="cert.description"
+            ref="descRef"
+            class="transition-all duration-700 ease-out transform"
+            :class="descVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
+            <BaseCard :hoverable="false" class="space-y-2">
+              <h3 class="font-heading font-semibold text-ink text-base">
+                Keterangan Sertifikasi
+              </h3>
+              <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                {{ cert.description }}
+              </p>
+            </BaseCard>
+          </div>
 
-          <!-- Verification Action CTA -->
-          <div v-if="cert.credential_url" class="p-6 rounded-xl bg-surface-alt border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <!-- Verification Action CTA (Scroll Reveal) -->
+          <div
+            v-if="cert.credential_url"
+            ref="verifyRef"
+            class="p-6 rounded-xl bg-surface-alt border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-700 ease-out transform"
+            :class="verifyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <div>
               <h4 class="font-heading font-bold text-ink text-base">
                 Verifikasi Keaslian Kredensial

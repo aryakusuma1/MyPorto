@@ -1,4 +1,7 @@
-﻿<script setup>
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useIntersection } from '../../composables/useIntersection'
+
 defineProps({
   tag: {
     type: String,
@@ -18,13 +21,24 @@ defineProps({
     validator: (v) => ['left', 'center'].includes(v),
   },
 })
+
+const titleRef = ref(null)
+const { isVisible, observe } = useIntersection({ threshold: 0.15 })
+
+onMounted(() => {
+  if (titleRef.value) {
+    observe(titleRef.value)
+  }
+})
 </script>
 
 <template>
   <div
+    ref="titleRef"
     :class="[
-      'mb-10',
+      'mb-10 transition-all duration-700 ease-out transform',
       align === 'center' ? 'text-center mx-auto' : 'text-left',
+      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
     ]"
   >
     <span

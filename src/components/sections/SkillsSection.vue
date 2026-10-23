@@ -38,7 +38,7 @@ onMounted(() => {
         subtitle="Daftar perkakas, framework, dan bahasa pemrograman yang saya kuasai dan gunakan dalam pengembangan."
       />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 delay-150 transform" :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
         <BaseCard
           v-for="(items, category) in groupedSkills"
           :key="category"

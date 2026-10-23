@@ -246,12 +246,14 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - Klik pesan untuk melihat detail dan menandai sudah dibaca
     - _Requirements: 12.5, 12.6_
 
-- [ ] 8. Checkpoint akhir — Polish & Deploy
-  - Periksa tampilan responsif di mobile, tablet, desktop
-  - Periksa konsistensi warna, spacing, dan tipografi
-  - Pastikan semua navigation guard admin bekerja
-  - Pastikan dark/light mode toggle bekerja
-  - Deploy ke Vercel dengan environment variables yang benar
+- [ ] 8. Checkpoint akhir - Polish & Deploy
+  - [x] 8.1 Reset scroll ke Hero saat refresh (manual scroll restoration & router reset)
+  - [x] 8.2 Terapkan Staggered Entrance Animation & Scale-in Glow pada Hero Section
+  - [x] 8.3 Terapkan Page Entrance & Scroll Reveal Animation pada Halaman Detail (Projects & Certificates)
+  - [ ] 8.4 Periksa tampilan responsif di mobile, tablet, desktop
+  - [ ] 8.5 Periksa konsistensi warna, spacing, dan tipografi
+  - [ ] 8.6 Pastikan semua navigation guard admin bekerja
+  - [ ] 8.7 Deploy ke Vercel dengan environment variables yang benar (setelah user menyetujui)
   - _Requirements: semua_
 
 ---

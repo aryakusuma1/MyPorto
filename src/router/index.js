@@ -88,16 +88,15 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition
-    }
-    if (to.hash) {
+    // Navigasi internal yang membawa hash dari route lain (misal kembali dari detail ke /#projects)
+    if (to.hash && from && from.name) {
       return {
         el: to.hash,
         behavior: 'smooth',
       }
     }
-    return { top: 0 }
+    // Saat reload/refresh atau navigasi langsung: selalu mulai dari paling atas (Hero)
+    return { top: 0, left: 0 }
   },
 })
 

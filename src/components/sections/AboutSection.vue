@@ -1,12 +1,15 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { Download, Code2, Sparkles, BookOpen, MapPin } from 'lucide-vue-next'
 import { useProfileStore } from '../../stores/profile.store'
+import { useIntersection } from '../../composables/useIntersection'
 import SectionTitle from '../ui/SectionTitle.vue'
 import BaseButton from '../ui/BaseButton.vue'
 import BaseCard from '../ui/BaseCard.vue'
 
 const profileStore = useProfileStore()
+const contentRef = ref(null)
+const { isVisible, observe } = useIntersection({ threshold: 0.15 })
 
 const defaultBio =
   'Saya adalah seorang pengembang perangkat lunak yang berfokus pada pembangunan solusi web end-to-end yang tangguh, modular, dan terstruktur. Terbiasa mengelola alur pengembangan dari pemodelan basis data relasional hingga implementasi antarmuka yang intuitif dan responsif.'
@@ -47,6 +50,12 @@ function downloadCV() {
     window.open(cvUrl.value, '_blank')
   }
 }
+
+onMounted(() => {
+  if (contentRef.value) {
+    observe(contentRef.value)
+  }
+})
 </script>
 
 <template>
@@ -58,7 +67,11 @@ function downloadCV() {
         subtitle="Sekilas mengenai latar belakang, filosofi kerja, dan keahlian yang saya bawa."
       />
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div
+        ref="contentRef"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start transition-all duration-700 ease-out transform"
+        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+      >
         <!-- Bio Column -->
         <div class="lg:col-span-6 space-y-6">
           <!-- Skeleton Loading for Bio -->
@@ -101,4 +114,4 @@ function downloadCV() {
       </div>
     </div>
   </section>
-</template>\n
+</template>

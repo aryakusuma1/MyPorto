@@ -1,11 +1,14 @@
-﻿<script setup>
-import { computed } from 'vue'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { Mail, Github, Linkedin, ArrowUpRight } from 'lucide-vue-next'
 import { useProfileStore } from '../../stores/profile.store'
+import { useIntersection } from '../../composables/useIntersection'
 import SectionTitle from '../ui/SectionTitle.vue'
 import BaseCard from '../ui/BaseCard.vue'
 
 const profileStore = useProfileStore()
+const contentRef = ref(null)
+const { isVisible, observe } = useIntersection({ threshold: 0.15 })
 const currentYear = new Date().getFullYear()
 
 const contacts = computed(() => {
@@ -37,6 +40,12 @@ const contacts = computed(() => {
     },
   ]
 })
+
+onMounted(() => {
+  if (contentRef.value) {
+    observe(contentRef.value)
+  }
+})
 </script>
 
 <template>
@@ -50,7 +59,11 @@ const contacts = computed(() => {
       />
 
       <!-- Contact Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+      <div
+        ref="contentRef"
+        class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16 transition-all duration-700 ease-out transform"
+        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+      >
         <a
           v-for="item in contacts"
           :key="item.name"

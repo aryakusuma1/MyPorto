@@ -1,5 +1,5 @@
-﻿<script setup>
-import { computed, onMounted } from 'vue'
+<script setup>
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -12,6 +12,7 @@ import {
   FolderGit2,
 } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project.store'
+import { useIntersection } from '../composables/useIntersection'
 import AppNavbar from '../components/layout/AppNavbar.vue'
 import BaseButton from '../components/ui/BaseButton.vue'
 import BaseBadge from '../components/ui/BaseBadge.vue'
@@ -26,14 +27,48 @@ const slug = computed(() => route.params.slug)
 const project = computed(() => projectStore.currentProject)
 const details = computed(() => project.value?.project_details || {})
 
+const isHeaderRevealed = ref(false)
+
+// Section refs & intersection observers for scroll reveal
+const techRef = ref(null)
+const overviewRef = ref(null)
+const featuresRef = ref(null)
+const archRef = ref(null)
+const challengesRef = ref(null)
+const screenshotsRef = ref(null)
+
+const { isVisible: techVisible, observe: observeTech } = useIntersection({ threshold: 0.15 })
+const { isVisible: overviewVisible, observe: observeOverview } = useIntersection({ threshold: 0.15 })
+const { isVisible: featuresVisible, observe: observeFeatures } = useIntersection({ threshold: 0.15 })
+const { isVisible: archVisible, observe: observeArch } = useIntersection({ threshold: 0.15 })
+const { isVisible: challengesVisible, observe: observeChallenges } = useIntersection({ threshold: 0.15 })
+const { isVisible: screenshotsVisible, observe: observeScreenshots } = useIntersection({ threshold: 0.15 })
+
 function goBack() {
   router.push('/#projects')
+}
+
+function initObservers() {
+  nextTick(() => {
+    setTimeout(() => {
+      isHeaderRevealed.value = true
+    }, 50)
+
+    if (techRef.value) observeTech(techRef.value)
+    if (overviewRef.value) observeOverview(overviewRef.value)
+    if (featuresRef.value) observeFeatures(featuresRef.value)
+    if (archRef.value) observeArch(archRef.value)
+    if (challengesRef.value) observeChallenges(challengesRef.value)
+    if (screenshotsRef.value) observeScreenshots(screenshotsRef.value)
+  })
 }
 
 onMounted(async () => {
   const result = await projectStore.fetchProjectBySlug(slug.value)
   if (!result && !projectStore.loading) {
     router.replace({ name: 'not-found' })
+  } else {
+    initObservers()
   }
 })
 </script>
@@ -65,8 +100,11 @@ onMounted(async () => {
 
         <!-- Project Detail Content -->
         <article v-else-if="project" class="space-y-12">
-          <!-- Header Area -->
-          <header class="space-y-4">
+          <!-- Header Area with Entrance Animation -->
+          <header
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="isHeaderRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             <div class="flex flex-wrap items-center gap-2">
               <BaseBadge variant="accent">
                 {{ project.category || 'Software Project' }}
@@ -114,7 +152,10 @@ onMounted(async () => {
           </header>
 
           <!-- Cover Image or Banner Placeholder -->
-          <div class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg">
+          <div
+            class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg transition-all duration-700 delay-150 ease-out transform"
+            :class="isHeaderRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"
+          >
             <img
               v-if="project.cover_url"
               :src="project.cover_url"
@@ -131,8 +172,12 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Tech Stack -->
-          <section class="space-y-4">
+          <!-- Tech Stack (Scroll Reveal) -->
+          <section
+            ref="techRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="techVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <Cpu class="w-5 h-5 text-accent" />
               Teknologi yang Digunakan
@@ -149,8 +194,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Overview Section -->
-          <section v-if="details.overview" class="space-y-4">
+          <!-- Overview Section (Scroll Reveal) -->
+          <section
+            v-if="details.overview"
+            ref="overviewRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="overviewVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <Layers class="w-5 h-5 text-accent" />
               Gambaran Umum Proyek
@@ -160,8 +210,13 @@ onMounted(async () => {
             </p>
           </section>
 
-          <!-- Key Features -->
-          <section v-if="details.features && details.features.length > 0" class="space-y-4">
+          <!-- Key Features (Scroll Reveal) -->
+          <section
+            v-if="details.features && details.features.length > 0"
+            ref="featuresRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="featuresVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <CheckCircle2 class="w-5 h-5 text-accent" />
               Fitur Utama
@@ -183,8 +238,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Architecture & Technical Design -->
-          <section v-if="details.architecture || details.diagram_url" class="space-y-4">
+          <!-- Architecture & Technical Design (Scroll Reveal) -->
+          <section
+            v-if="details.architecture || details.diagram_url"
+            ref="archRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="archVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink">
               Arsitektur & Desain Sistem
             </h2>
@@ -196,8 +256,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Challenges & Solutions -->
-          <section v-if="details.challenges && details.challenges.length > 0" class="space-y-4">
+          <!-- Challenges & Solutions (Scroll Reveal) -->
+          <section
+            v-if="details.challenges && details.challenges.length > 0"
+            ref="challengesRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="challengesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <AlertCircle class="w-5 h-5 text-accent" />
               Tantangan & Solusi Teknis
@@ -229,8 +294,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Screenshots Gallery -->
-          <section v-if="details.screenshots && details.screenshots.length > 0" class="space-y-4">
+          <!-- Screenshots Gallery (Scroll Reveal) -->
+          <section
+            v-if="details.screenshots && details.screenshots.length > 0"
+            ref="screenshotsRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="screenshotsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink">
               Tangkapan Layar
             </h2>

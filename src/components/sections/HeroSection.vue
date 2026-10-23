@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useProfileStore } from '../../stores/profile.store'
 import BaseButton from '../ui/BaseButton.vue'
 import defaultHeroImg from '../../assets/hero.png'
 
 const profileStore = useProfileStore()
+const isRevealed = ref(false)
 
 // Fallback profil jika data di Supabase benar-benar kosong setelah loading selesai
 const defaultProfile = {
@@ -76,10 +77,19 @@ function typeLoop() {
   typingTimeout = setTimeout(typeLoop, typingSpeed)
 }
 
+function triggerEntrance() {
+  nextTick(() => {
+    setTimeout(() => {
+      isRevealed.value = true
+    }, 50)
+  })
+}
+
 watch(
   () => profileStore.loading,
   (isLoading) => {
     if (!isLoading) {
+      triggerEntrance()
       if (typingTimeout) clearTimeout(typingTimeout)
       roleIndex = 0
       charIndex = 0
@@ -109,6 +119,7 @@ function scrollTo(id) {
 onMounted(async () => {
   await profileStore.fetchProfile()
   if (!profileStore.loading) {
+    triggerEntrance()
     typeLoop()
   }
 })
@@ -149,23 +160,31 @@ onUnmounted(() => {
         </div>
 
         <div class="lg:col-span-5 flex justify-center lg:justify-end animate-pulse">
-          <div class="w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-2xl bg-surface-raised border border-border"></div>
+          <div class="w-72 h-72 sm:w-84 sm:h-84 md:w-96 md:h-96 lg:w-[380px] lg:h-[380px] xl:w-[420px] xl:h-[420px] rounded-3xl bg-surface-raised border border-border"></div>
         </div>
       </div>
 
-      <!-- Loaded Data State -->
+      <!-- Loaded Data State with Staggered Entrance Animation -->
       <div
         v-else
-        class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center animate-fade-in"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
       >
         <!-- Text Column -->
         <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-raised border border-border text-xs font-medium text-accent">
+          <!-- 1. Availability Badge (Slide down) -->
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-raised border border-border text-xs font-medium text-accent transition-all duration-700 ease-out transform"
+            :class="isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'"
+          >
             <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
             Tersedia untuk Pekerjaan & Proyek
           </div>
 
-          <div class="space-y-2">
+          <!-- 2. Heading & Dynamic Role (Slide up) -->
+          <div
+            class="space-y-2 transition-all duration-700 delay-150 ease-out transform"
+            :class="isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             <p class="text-ink-muted text-base sm:text-lg font-medium">Halo, saya</p>
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold font-heading text-ink tracking-tight">
               {{ profile.full_name }}
@@ -178,12 +197,19 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <p class="text-ink-muted text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+          <!-- 3. Tagline (Slide up) -->
+          <p
+            class="text-ink-muted text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed transition-all duration-700 delay-300 ease-out transform"
+            :class="isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             {{ profile.tagline }}
           </p>
 
-          <!-- CTA Buttons -->
-          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+          <!-- 4. CTA Buttons (Slide up) -->
+          <div
+            class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 transition-all duration-700 delay-500 ease-out transform"
+            :class="isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             <BaseButton variant="primary" size="lg" @click="scrollTo('projects')">
               Lihat Proyek
             </BaseButton>
@@ -193,20 +219,23 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Image Column -->
-        <div class="lg:col-span-5 flex justify-center lg:justify-end">
-          <div class="relative group">
+        <!-- Image Column with Scale-in and Floating Effect -->
+        <div
+          class="lg:col-span-5 flex justify-center lg:justify-end transition-all duration-1000 delay-200 ease-out transform"
+          :class="isRevealed ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-6'"
+        >
+          <div class="relative group animate-float">
             <!-- Subtle accent glow border -->
             <div
-              class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-accent/20 to-accent-muted/20 blur-sm group-hover:from-accent/30 group-hover:to-accent-muted/30 transition-all duration-300"
+              class="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-accent/25 to-accent-muted/20 blur-md group-hover:from-accent/40 group-hover:to-accent-muted/40 transition-all duration-500"
             ></div>
             <div
-              class="relative w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-2xl bg-surface-alt border border-border p-2 overflow-hidden shadow-xl"
+              class="relative w-72 h-72 sm:w-84 sm:h-84 md:w-96 md:h-96 lg:w-[380px] lg:h-[380px] xl:w-[420px] xl:h-[420px] rounded-3xl bg-surface-alt border border-border p-2.5 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
             >
               <img
                 :src="profile.photo_url || defaultHeroImg"
                 :alt="profile.full_name"
-                class="w-full h-full object-cover rounded-xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
+                class="w-full h-full object-cover rounded-xl grayscale-[15%] group-hover:grayscale-0 transition-all duration-500"
                 loading="eager"
               />
             </div>
@@ -215,4 +244,4 @@ onUnmounted(() => {
       </div>
     </div>
   </section>
-</template>\n
+</template>

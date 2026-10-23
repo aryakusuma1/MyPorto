@@ -26,6 +26,7 @@
 4. WHEN Visitor menggulir halaman, THE App SHALL menandai tautan navigasi yang sesuai dengan section yang sedang terlihat di layar sebagai aktif.
 5. THE App SHALL menampilkan tampilan navbar yang responsif — pada layar kecil, tautan navigasi tersembunyi di balik ikon menu hamburger.
 6. WHEN Visitor mengklik ikon hamburger, THE App SHALL menampilkan menu navigasi.
+7. WHEN Visitor memuat ulang (refresh) atau mengakses rute utama '/', THE App SHALL menonaktifkan restorasi scroll otomatis bawaan peramban (history.scrollRestoration = 'manual') dan selalu mengarahkan posisi viewport kembali ke bagian paling atas (Section Hero / top: 0).
 
 ---
 
@@ -42,6 +43,8 @@
 5. THE Hero_Section SHALL menampilkan animasi teks bergantian (typing effect) pada bagian title/role.
 6. WHILE data profil sedang dimuat dari Supabase, THE Hero_Section SHALL menampilkan skeleton loader dan TIDAK menampilkan data fallback sebelum proses pemuatan selesai.
 7. IF data profil di Supabase kosong setelah proses pemuatan selesai, THEN THE Hero_Section MAY menampilkan data default/fallback sebagai jaring pengaman.
+8. THE Hero_Section SHALL menampilkan foto profil dalam ukuran yang lebih dominan dan proporsional (hingga 420px pada layar desktop) dengan bingkai aksen visual yang seimbang.
+9. WHEN Section Hero selesai memuat data dan pertama kali ditampilkan di layar Visitor, THE Hero_Section SHALL menerapkan animasi kemunculan bertingkat (Staggered Entrance Animation) yang mencakup: fade-in & slide-down pada badge status, fade-in & slide-up pada sapaan dan nama lengkap, pengetikan dinamis (typing effect) pada role, fade-in & slide-up pada tagline dan tombol CTA, serta efek zoom halus (scale-in) dengan aksen pendaran cahaya (glow) pada foto profil.
 
 ---
 
@@ -94,6 +97,7 @@
 1. THE Detail_Page untuk project SHALL menampilkan: judul, status, kategori, overview, tech stack, arsitektur, fitur utama, tantangan & solusi, screenshots, serta tautan GitHub dan demo (jika tersedia).
 2. THE Detail_Page SHALL menyediakan tombol kembali yang membawa Visitor ke Home_Page di section Projects.
 3. WHEN Visitor mengakses route `/projects/:slug` dengan slug yang tidak valid, THE App SHALL mengarahkan Visitor ke halaman 404 atau kembali ke Home_Page.
+4. THE Detail_Page untuk project SHALL menerapkan animasi transisi masuk (entrance animation) pada header dan gambar banner, serta menerapkan Scroll Reveal Animation (fade-in & slide-up) berbasis Intersection Observer pada setiap sub-bagian konten (Tech Stack, Gambaran & Masalah, Fitur & Arsitektur Utama, serta Dampak & Hasil) saat Visitor menggulir halaman ke bawah.
 
 ---
 
@@ -134,6 +138,7 @@
 1. THE Detail_Page untuk sertifikat SHALL menampilkan: gambar sertifikat ukuran penuh, nama sertifikat, nama penerbit, tanggal terbit, kategori, dan deskripsi (jika ada).
 2. IF URL verifikasi tersedia, THEN THE Detail_Page SHALL menampilkan tautan "Verifikasi Sertifikat" yang membuka URL tersebut di tab baru.
 3. THE Detail_Page SHALL menyediakan tombol kembali yang membawa Visitor ke Home_Page di section Certificates.
+4. THE Detail_Page untuk sertifikat SHALL menerapkan animasi transisi masuk (entrance animation) pada header dan pratinjau sertifikat, serta menerapkan Scroll Reveal Animation (fade-in & slide-up) berbasis Intersection Observer pada sub-bagian konten (Deskripsi & Ruang Lingkup, Keahlian yang Diverifikasi, dan Informasi Kredensial) saat Visitor menggulir halaman ke bawah.
 
 ---
 
@@ -188,4 +193,5 @@
 | Performa | Halaman utama dapat digunakan dalam waktu wajar pada koneksi rata-rata |
 | Aksesibilitas | Elemen interaktif dapat dijangkau via keyboard; kontras warna memadai |
 | Keamanan | Data sensitif (pesan masuk, akses admin) dilindungi oleh RLS Supabase |
+| Animasi & Interaksi | Menerapkan Staggered Entrance Animation pada Section Hero saat dibuka, Scroll Reveal Animation (fade-in & slide-up) berbasis Intersection Observer pada seluruh judul section dan grup kartu di halaman utama, serta animasi masuk & scroll reveal pada setiap sub-bagian di halaman detail (Project & Certificate) |
 | Bahasa | Seluruh teks antarmuka dalam Bahasa Indonesia |
