@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
@@ -12,9 +12,8 @@ const isMobileMenuOpen = ref(false)
 const navItems = [
   { id: 'hero', label: 'Beranda' },
   { id: 'about', label: 'Tentang' },
-  { id: 'skills', label: 'Keahlian' },
+  { id: 'journey', label: 'Perjalanan' },
   { id: 'projects', label: 'Proyek' },
-  { id: 'experience', label: 'Pengalaman' },
   { id: 'certificates', label: 'Sertifikat' },
   { id: 'contact', label: 'Kontak' },
 ]

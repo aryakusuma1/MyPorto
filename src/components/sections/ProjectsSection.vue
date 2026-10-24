@@ -1,19 +1,134 @@
-<script setup>
-import { ref, onMounted } from 'vue'
+﻿<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import {
+  ArrowUpRight,
+  FolderGit2,
+  Sparkles,
+} from 'lucide-vue-next'
 import { useProjectStore } from '../../stores/project.store'
 import { useIntersection } from '../../composables/useIntersection'
 import SectionTitle from '../ui/SectionTitle.vue'
-import ProjectCard from '../project/ProjectCard.vue'
-import SkeletonLoader from '../ui/SkeletonLoader.vue'
+import BaseBadge from '../ui/BaseBadge.vue'
 
 const router = useRouter()
 const projectStore = useProjectStore()
 const contentRef = ref(null)
 const { isVisible, observe } = useIntersection({ threshold: 0.15 })
 
-function navigateToProject(slug) {
-  router.push(`/projects/${slug}`)
+const activeIndex = ref(0)
+const touchStartX = ref(0)
+const touchEndX = ref(0)
+
+const projects = computed(() => projectStore.projects || [])
+
+const activeProject = computed(() => {
+  if (!projects.value.length) return null
+  return projects.value[activeIndex.value] || projects.value[0]
+})
+
+function prev() {
+  if (!projects.value.length) return
+  activeIndex.value = (activeIndex.value - 1 + projects.value.length) % projects.value.length
+}
+
+function next() {
+  if (!projects.value.length) return
+  activeIndex.value = (activeIndex.value + 1) % projects.value.length
+}
+
+function goTo(index) {
+  if (index >= 0 && index < projects.value.length) {
+    activeIndex.value = index
+  }
+}
+
+function navigateToActiveProject() {
+  if (activeProject.value?.slug) {
+    router.push(`/projects/${activeProject.value.slug}`)
+  }
+}
+
+function handleTouchStart(e) {
+  touchStartX.value = e.changedTouches[0].screenX
+}
+
+function handleTouchEnd(e) {
+  touchEndX.value = e.changedTouches[0].screenX
+  handleSwipe()
+}
+
+function handleSwipe() {
+  const swipeThreshold = 45
+  const diff = touchEndX.value - touchStartX.value
+  if (Math.abs(diff) > swipeThreshold) {
+    if (diff > 0) {
+      prev()
+    } else {
+      next()
+    }
+  }
+}
+
+/**
+ * Menghitung posisi bertumpuk DATAR (Flat Layered Stack) tanpa rotasi menyamping
+ */
+function getCardStyle(index) {
+  const total = projects.value.length
+  if (total === 0) return {}
+
+  let offset = index - activeIndex.value
+
+  // Normalisasi jarak looping melingkar
+  if (offset > total / 2) offset -= total
+  if (offset < -total / 2) offset += total
+
+  // Kartu utama di tengah (Center Active)
+  if (offset === 0) {
+    return {
+      transform: 'translate(-50%, -50%) scale(1)',
+      zIndex: 30,
+      opacity: 1,
+      filter: 'none',
+      pointerEvents: 'auto',
+    }
+  }
+
+  // Kartu sisi kiri (Flat Layered Stack, Datar)
+  if (offset === -1 || (total > 2 && offset < 0 && offset >= -2)) {
+    const depth = Math.abs(offset)
+    const translateX = depth === 1 ? '-88%' : '-125%'
+    const scale = depth === 1 ? 0.86 : 0.74
+    return {
+      transform: `translate(${translateX}, -50%) scale(${scale})`,
+      zIndex: 20 - depth,
+      opacity: depth === 1 ? 0.65 : 0.25,
+      filter: 'brightness(0.75)',
+      pointerEvents: 'auto',
+    }
+  }
+
+  // Kartu sisi kanan (Flat Layered Stack, Datar)
+  if (offset === 1 || (total > 2 && offset > 0 && offset <= 2)) {
+    const depth = Math.abs(offset)
+    const translateX = depth === 1 ? '-12%' : '25%'
+    const scale = depth === 1 ? 0.86 : 0.74
+    return {
+      transform: `translate(${translateX}, -50%) scale(${scale})`,
+      zIndex: 20 - depth,
+      opacity: depth === 1 ? 0.65 : 0.25,
+      filter: 'brightness(0.75)',
+      pointerEvents: 'auto',
+    }
+  }
+
+  // Kartu di luar jangkauan
+  return {
+    transform: 'translate(-50%, -50%) scale(0.5)',
+    zIndex: 0,
+    opacity: 0,
+    pointerEvents: 'none',
+  }
 }
 
 onMounted(() => {
@@ -25,12 +140,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <section id="projects" class="py-20 border-t border-border/50">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <section id="projects" class="py-20 border-t border-border/50 relative overflow-hidden">
+    <!-- Ambient Glow Effect -->
+    <div
+      class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-accent/5 rounded-full blur-3xl pointer-events-none"
+    ></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <!-- Section Header -->
       <SectionTitle
         tag="Portofolio Proyek"
         title="Karya & Solusi Nyata"
-        subtitle="Eksplorasi proyek-proyek terpilih yang telah saya rancang dan bangun dengan arsitektur modern."
+        subtitle="Eksplorasi proyek yang telah saya rancang dan bangun dengan arsitektur modern."
+        margin-bottom="mb-2 sm:mb-4"
       />
 
       <div
@@ -41,31 +163,172 @@ onMounted(() => {
         <!-- Skeleton Loading State -->
         <div
           v-if="projectStore.loading"
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          class="h-72 sm:h-80 rounded-3xl bg-surface-alt border border-border animate-pulse flex items-center justify-center"
         >
-          <SkeletonLoader type="card" :count="3" />
+          <div class="text-xs text-ink-muted flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-accent animate-ping"></span>
+            Memuat galeri karya proyek...
+          </div>
         </div>
 
-        <!-- Projects Grid State -->
+        <!-- Flat Layered Showcase Carousel State -->
         <div
-          v-else-if="projectStore.projects && projectStore.projects.length > 0"
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          v-else-if="projects.length > 0"
+          class="flex flex-col items-center"
+          @touchstart="handleTouchStart"
+          @touchend="handleTouchEnd"
         >
-          <ProjectCard
-            v-for="project in projectStore.projects"
-            :key="project.id"
-            :project="project"
-            @click="navigateToProject"
-          />
+          <!-- Stage Visual Showcase (Datar, Ukuran Pas, Bersih Tanpa Panah) -->
+          <div class="relative w-full max-w-4xl h-52 sm:h-64 md:h-[295px] mt-0 mb-2 select-none overflow-hidden">
+            <!-- Cards Container -->
+            <div class="relative w-full h-full">
+              <div
+                v-for="(proj, index) in projects"
+                :key="proj.id"
+                class="absolute top-1/2 left-1/2 w-[76%] sm:w-[58%] md:w-[48%] max-w-[460px] aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden border transition-all duration-500 ease-out cursor-pointer shadow-2xl group"
+                :class="
+                  index === activeIndex
+                    ? 'border-accent shadow-[0_15px_40px_rgba(255,107,0,0.24)] ring-1 ring-accent/60'
+                    : 'border-border/80 hover:border-border'
+                "
+                :style="getCardStyle(index)"
+                @click="index === activeIndex ? navigateToActiveProject() : goTo(index)"
+              >
+                <!-- Thumbnail Cover Image -->
+                <img
+                  v-if="proj.cover_url"
+                  :src="proj.cover_url"
+                  :alt="proj.title"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div
+                  v-else
+                  class="w-full h-full bg-surface-raised flex flex-col items-center justify-center text-accent/60 p-6"
+                >
+                  <FolderGit2 class="w-12 h-12 mb-2 text-accent" />
+                  <span class="text-xs text-ink-muted font-mono">{{ proj.title }}</span>
+                </div>
+
+                <!-- Subtle Top Gradient & Badges -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+
+                <!-- Badges on top -->
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                  <span
+                    v-if="proj.featured"
+                    class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent text-white shadow-lg backdrop-blur-sm"
+                  >
+                    <Sparkles class="w-2.5 h-2.5" />
+                    Unggulan
+                  </span>
+                  <span
+                    v-else
+                    class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/60 text-ink-muted border border-white/10 backdrop-blur-sm"
+                  >
+                    {{ proj.category || 'Proyek' }}
+                  </span>
+
+                  <!-- Status Pill -->
+                  <span
+                    class="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-surface/80 text-ink-muted border border-border/60 backdrop-blur-sm"
+                  >
+                    {{ proj.status || 'Completed' }}
+                  </span>
+                </div>
+
+                <!-- Center Hover Overlay Button -->
+                <div
+                  v-if="index === activeIndex"
+                  class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-[2px]"
+                >
+                  <span
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-semibold shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-transform"
+                  >
+                    <span>Buka Detail Proyek</span>
+                    <ArrowUpRight class="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination Dots (Tepat di Bawah Gambar Showcase) -->
+          <div v-if="projects.length > 1" class="flex items-center justify-center gap-2 mt-3 mb-4">
+            <button
+              v-for="(_, dIdx) in projects"
+              :key="dIdx"
+              type="button"
+              class="transition-all duration-300 rounded-full cursor-pointer"
+              :class="
+                dIdx === activeIndex
+                  ? 'w-7 h-2 bg-accent shadow-sm'
+                  : 'w-2 h-2 bg-ink-muted/30 hover:bg-ink-muted/60'
+              "
+              :title="`Pindah ke proyek ${dIdx + 1}`"
+              @click="goTo(dIdx)"
+            ></button>
+          </div>
+
+          <!-- Active Project Details Box (Lebar & Dibatasi line-clamp-2 agar tidak panjang) -->
+          <div v-if="activeProject" class="w-full max-w-3xl text-center space-y-3.5 px-4 mt-1">
+            <div>
+              <span class="text-xs font-mono font-medium text-accent tracking-wider uppercase block mb-1">
+                {{ activeProject.category || 'Proyek Pilihan' }}
+              </span>
+              <h3
+                class="font-heading font-bold text-xl sm:text-2xl text-ink hover:text-accent transition-colors cursor-pointer inline-flex items-center gap-2 group/title"
+                @click="navigateToActiveProject"
+              >
+                <span>{{ activeProject.title }}</span>
+                <ArrowUpRight class="w-5 h-5 text-accent opacity-0 group-hover/title:opacity-100 transition-opacity" />
+              </h3>
+            </div>
+
+            <!-- Deskripsi dibatasi line-clamp-2 dan lebar proporsional -->
+            <p class="text-ink-muted text-sm sm:text-base leading-relaxed line-clamp-2 max-w-2xl mx-auto">
+              {{ activeProject.short_desc }}
+            </p>
+
+            <!-- Tech Stack Badges -->
+            <div
+              v-if="activeProject.tech_stack && activeProject.tech_stack.length"
+              class="flex flex-wrap items-center justify-center gap-1.5 pt-1"
+            >
+              <BaseBadge
+                v-for="tech in activeProject.tech_stack"
+                :key="tech"
+                variant="neutral"
+                size="sm"
+                class="bg-surface-raised border border-border/80 font-mono text-[11px]"
+              >
+                {{ tech }}
+              </BaseBadge>
+            </div>
+
+            <!-- Action Link Button -->
+            <div class="pt-2">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-surface-alt border border-accent/40 text-accent hover:bg-accent hover:text-white font-medium text-xs sm:text-sm shadow-md transition-all cursor-pointer group"
+                @click="navigateToActiveProject"
+              >
+                <span>Lihat Detail Proyek</span>
+                <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Empty State -->
         <div
           v-else
-          class="text-center py-16 bg-surface-alt border border-border rounded-lg p-8"
+          class="text-center py-16 bg-surface-alt border border-border rounded-2xl p-8 max-w-lg mx-auto"
         >
-          <p class="text-ink-muted text-base">
-            Belum ada proyek yang ditampilkan saat ini.
+          <FolderGit2 class="w-12 h-12 text-ink-muted mx-auto mb-3" />
+          <h3 class="font-heading font-semibold text-ink text-base">Belum ada proyek</h3>
+          <p class="text-ink-muted text-xs mt-1">
+            Data proyek belum diunggah atau belum tersedia di basis data.
           </p>
         </div>
       </div>

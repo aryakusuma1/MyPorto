@@ -1,7 +1,8 @@
-﻿<script setup>
+<script setup>
 import { ref } from 'vue'
-import { UploadCloud, X, AlertCircle } from 'lucide-vue-next'
+import { UploadCloud, X, AlertCircle, Crop } from 'lucide-vue-next'
 import { supabase } from '../../lib/supabase'
+import ImageCropperModal from './ImageCropperModal.vue'
 
 const props = defineProps({
   bucket: {
@@ -20,6 +21,10 @@ const props = defineProps({
     type: String,
     default: 'Unggah Gambar',
   },
+  aspectRatio: {
+    type: String,
+    default: '16:9', // '16:9', '4:3', '3:4', '1:1', 'free'
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'success', 'error'])
@@ -28,13 +33,17 @@ const isUploading = ref(false)
 const errorMessage = ref('')
 const fileInputRef = ref(null)
 
+// Cropper modal state
+const isCropperOpen = ref(false)
+const fileToCrop = ref(null)
+
 function triggerFileInput() {
   if (fileInputRef.value) {
     fileInputRef.value.click()
   }
 }
 
-async function handleFileChange(event) {
+function handleFileChange(event) {
   const file = event.target.files?.[0]
   if (!file) return
 
@@ -44,23 +53,40 @@ async function handleFileChange(event) {
     return
   }
 
-  // Validasi ukuran berkas (maksimal 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    errorMessage.value = 'Ukuran gambar maksimal 5MB.'
+  // Validasi ukuran berkas (maksimal 10MB sebelum potong)
+  if (file.size > 10 * 1024 * 1024) {
+    errorMessage.value = 'Ukuran gambar maksimal 10MB.'
     return
   }
+
+  errorMessage.value = ''
+  fileToCrop.value = file
+  isCropperOpen.value = true
+
+  // Reset input agar bisa memilih file yang sama jika diinginkan
+  if (event.target) event.target.value = ''
+}
+
+function handleCropperClose() {
+  isCropperOpen.value = false
+  fileToCrop.value = null
+}
+
+async function handleCropped(croppedFile) {
+  isCropperOpen.value = false
+  fileToCrop.value = null
 
   isUploading.value = true
   errorMessage.value = ''
 
   try {
-    const fileExt = file.name.split('.').pop()
+    const fileExt = croppedFile.name.split('.').pop() || 'jpg'
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`
     const filePath = `${props.folder}/${fileName}`
 
     const { error: uploadError } = await supabase.storage
       .from(props.bucket)
-      .upload(filePath, file, {
+      .upload(filePath, croppedFile, {
         cacheControl: '3600',
         upsert: false,
       })
@@ -79,7 +105,6 @@ async function handleFileChange(event) {
     emit('error', errorMessage.value)
   } finally {
     isUploading.value = false
-    if (event.target) event.target.value = ''
   }
 }
 
@@ -91,14 +116,19 @@ function removeImage() {
 
 <template>
   <div class="space-y-2">
-    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider">
-      {{ label }}
-    </label>
+    <div class="flex items-center justify-between">
+      <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider">
+        {{ label }}
+      </label>
+      <span v-if="aspectRatio" class="text-[10px] font-mono text-ink-muted/80 bg-surface-raised px-2 py-0.5 rounded border border-border/50">
+        Rasio target: {{ aspectRatio }}
+      </span>
+    </div>
 
     <!-- Error message alert -->
     <div
       v-if="errorMessage"
-      class="p-2.5 rounded bg-red-950/40 border border-red-800 text-red-200 text-xs flex items-center gap-2"
+      class="p-2.5 rounded-lg bg-red-950/40 border border-red-800 text-red-200 text-xs flex items-center gap-2"
     >
       <AlertCircle class="w-4 h-4 text-red-400 shrink-0" />
       <span>{{ errorMessage }}</span>
@@ -116,12 +146,13 @@ function removeImage() {
     <!-- Preview if image exists -->
     <div
       v-if="modelValue"
-      class="relative w-full max-w-sm rounded-lg overflow-hidden border border-border bg-surface-raised group"
+      class="relative w-full max-w-sm rounded-xl overflow-hidden border border-border bg-surface-raised group shadow-sm"
     >
       <img
         :src="modelValue"
         alt="Preview"
         class="w-full h-44 object-cover"
+        loading="lazy"
       />
       <button
         type="button"
@@ -133,21 +164,22 @@ function removeImage() {
       </button>
       <button
         type="button"
-        class="absolute bottom-2 right-2 px-2.5 py-1 rounded bg-surface/90 text-xs text-ink border border-border hover:border-accent transition-colors cursor-pointer"
+        class="absolute bottom-2 right-2 px-3 py-1.5 rounded-lg bg-surface/90 text-xs font-medium text-ink border border-border hover:border-accent transition-colors cursor-pointer shadow-md flex items-center gap-1.5"
         @click="triggerFileInput"
       >
-        Ganti Gambar
+        <Crop class="w-3.5 h-3.5 text-accent" />
+        <span>Ganti / Sesuaikan</span>
       </button>
     </div>
 
     <!-- Upload placeholder box if no image -->
     <div
       v-else
-      class="border-2 border-dashed border-border hover:border-accent/70 rounded-lg p-6 text-center cursor-pointer transition-colors bg-surface-raised/40 hover:bg-surface-raised/80 select-none"
+      class="border-2 border-dashed border-border hover:border-accent/70 rounded-xl p-6 text-center cursor-pointer transition-colors bg-surface-raised/40 hover:bg-surface-raised/80 select-none group"
       @click="triggerFileInput"
     >
       <div class="flex flex-col items-center justify-center space-y-2">
-        <div class="w-10 h-10 rounded-full bg-surface-raised flex items-center justify-center text-accent">
+        <div class="w-10 h-10 rounded-full bg-surface-raised flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
           <UploadCloud v-if="!isUploading" class="w-5 h-5" />
           <svg
             v-else
@@ -161,12 +193,22 @@ function removeImage() {
           </svg>
         </div>
         <p class="text-xs sm:text-sm font-medium text-ink">
-          {{ isUploading ? 'Sedang mengunggah...' : 'Klik untuk memilih berkas gambar' }}
+          {{ isUploading ? 'Sedang mengunggah...' : 'Pilih Foto (Bisa dipotong & disesuaikan letaknya)' }}
         </p>
         <p class="text-[11px] text-ink-muted">
-          Format PNG, JPG, WebP (Maksimal 5MB)
+          Format PNG, JPG, WebP (Rasio otomatis {{ aspectRatio }})
         </p>
       </div>
     </div>
+
+    <!-- Interactive Cropper Modal -->
+    <ImageCropperModal
+      v-if="isCropperOpen && fileToCrop"
+      :image-file="fileToCrop"
+      :default-aspect-ratio="aspectRatio"
+      :title="`Sesuaikan ${label}`"
+      @close="handleCropperClose"
+      @crop="handleCropped"
+    />
   </div>
 </template>

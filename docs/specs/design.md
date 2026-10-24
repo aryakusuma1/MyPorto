@@ -313,3 +313,36 @@ WHEN Visitor mengakses `/admin` atau rute admin manapun tanpa sesi aktif,
 THE App SHALL redirect ke `/admin/login`.
 
 WHEN Admin berhasil login, THE App SHALL redirect ke `/admin/dashboard`.
+
+### 7.4 Interactive 3D Coverflow Showcase Carousel (Projects & Certificates)
+- **Konsep Arsitektur**:
+  - Menggantikan grid multi-baris statis dengan Coverflow Showcase Slider 3D horizontal interaktif.
+  - State aktif dilacak via `activeIndex` (0 s/d `items.length - 1`).
+  - Posisi relatif setiap item dihitung menggunakan offset: `offset = index - activeIndex`.
+  - Transformasi 3D dinamis:
+    - `offset === 0` (Active Center): `scale(1.05)`, `translateZ(0)`, `opacity: 1`, border accent glow `box-shadow: 0 10px 30px rgba(255,107,0,0.2)`.
+    - `offset === -1` (Left Adjacent): `translateX(-70%) scale(0.85) rotateY(15deg)`, `opacity: 0.65`.
+    - `offset === 1` (Right Adjacent): `translateX(70%) scale(0.85) rotateY(-15deg)`, `opacity: 0.65`.
+    - `Math.abs(offset) >= 2`: `opacity: 0`, `pointer-events: none` (atau disembunyikan di luar viewport panggung).
+- **Interaksi**:
+  - Tombol ◀ dan ▶ untuk navigasi step per step dengan wrap-around atau batas ujung.
+  - Klik pada kartu kiri/kanan memanggil `setActiveIndex(targetIndex)`.
+  - Touch event listeners (`touchstart`, `touchmove`, `touchend`) untuk swipe horizontal di layar sentuh mobile/tablet.
+  - Kotak informasi aktif di bawah stage menampilkan detail item, deskripsi, badges, dan direct action button.
+
+### 7.5 Kontak 2-Kolom & Dual-Delivery Messaging Architecture
+- **Konsep Tata Letak**:
+  - Mengadopsi struktur grid 2-kolom (`grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start`).
+  - **Kolom Kiri (`lg:col-span-5`) — List Kontak Langsung**:
+    - Menampilkan kartu-kartu tautan kontak tanpa nomor urut: Email, GitHub, LinkedIn, dan Instagram.
+    - Menggunakan ikon resmi Lucide (`Mail`, `Github`, `Linkedin`, `Instagram`).
+    - Kartu dilengkapi efek interaktif border glow dan panah eksternal `ArrowUpRight`.
+  - **Kolom Kanan (`lg:col-span-7`) — Formulir Kirim Pesan Interaktif**:
+    - Kontainer kartu `bg-surface-alt/70 border border-border/80 rounded-2xl p-6 sm:p-8 shadow-xl`.
+    - Input nama, email, dan textarea pesan dengan ikon pembantu (`User`, `Mail`, `MessageSquare`).
+    - Validasi format email dan panjang isian.
+- **Arsitektur Pengiriman Pesan Ganda (*Dual-Delivery*)**:
+  - `Submit Handler` mengeksekusi dua alur secara paralel atau sekuensial:
+    1. **Notifikasi Email Instan**: Mengirim payload JSON ke gateway email (FormSubmit AJAX) ke email pemilik portofolio, sehingga notifikasi langsung masuk ke ponsel pemilik.
+    2. **Arsip Basis Data**: Memasukkan rekaman baru ke tabel `public.contact_messages` di Supabase untuk riwayat pesan di dashboard admin (`MessagesView.vue`).
+  - Penanganan state reaktif: `isSubmitting` (disable button + spinner), `isSuccess` (alert hijau), `errorMessage` (alert merah).

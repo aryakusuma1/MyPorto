@@ -1,4 +1,4 @@
-﻿# Requirements: Web Portfolio Personal
+# Requirements: Web Portfolio Personal
 
 ## Glossary
 
@@ -21,7 +21,7 @@
 ### Acceptance Criteria
 
 1. THE App SHALL menampilkan navbar yang tetap terlihat (sticky) di bagian atas layar saat Visitor menggulir halaman.
-2. THE App SHALL menyediakan tautan navigasi untuk setiap section: Hero, About, Skills, Projects, Experience, Certificates, dan Footer.
+2. THE App SHALL menyediakan tautan navigasi untuk setiap section: Hero, About, Journey (Pendidikan, Pengalaman, & Keahlian), Projects, Certificates, dan Footer.
 3. WHEN Visitor mengklik tautan navigasi, THE App SHALL menggulir halaman secara mulus (smooth scroll) ke section yang dituju.
 4. WHEN Visitor menggulir halaman, THE App SHALL menandai tautan navigasi yang sesuai dengan section yang sedang terlihat di layar sebagai aktif.
 5. THE App SHALL menampilkan tampilan navbar yang responsif — pada layar kecil, tautan navigasi tersembunyi di balik ikon menu hamburger.
@@ -54,11 +54,12 @@
 
 ### Acceptance Criteria
 
-1. THE About_Section SHALL menampilkan foto profil dan bio singkat pemilik.
-2. THE About_Section SHALL menampilkan beberapa fakta menarik tentang diri pemilik dalam format yang mudah dibaca.
-3. THE About_Section SHALL menyediakan tombol untuk mengunduh CV pemilik dalam format PDF.
+1. THE About_Section SHALL menampilkan foto diri/aktivitas mandiri yang berbeda dan terpisah dari foto Hero Section (menggunakan field `about_photo_url` dengan fallback gambar default khusus `about.png`).
+2. THE About_Section SHALL menyajikan tata letak dua kolom yang harmonis: kolom visual foto potret artistik berbingkai rounded-2xl dengan aksen glow di sisi kiri, dan kolom konten di sisi kanan.
+3. THE About_Section SHALL menampilkan bio deskriptif, filosofi koding, dan tombol unduh CV pemilik dalam format PDF pada kolom konten.
 4. IF CV belum diunggah oleh Admin, THEN THE About_Section SHALL menyembunyikan tombol unduh CV.
-5. WHILE data bio/profil sedang dimuat dari Supabase, THE About_Section SHALL menampilkan skeleton loader dan TIDAK menampilkan bio fallback sebelum proses pemuatan selesai.
+5. THE About_Section SHALL menampilkan 4 kartu fakta menarik tentang diri pemilik dalam format grid di bawah teks bio.
+6. WHILE data bio/profil sedang dimuat dari Supabase, THE About_Section SHALL menampilkan skeleton loader dan TIDAK menampilkan bio fallback sebelum proses pemuatan selesai.
 
 ---
 
@@ -76,15 +77,21 @@
 
 ## Requirement 5: Section Projects
 
-**User Story:** Sebagai Visitor, saya ingin melihat daftar project yang pernah dikerjakan, sehingga saya dapat menilai portofolio dan kemampuan teknis pemilik.
+**User Story:** Sebagai Visitor, saya ingin menjelajahi portofolio proyek karya pemilik dalam format showcase galeri interaktif yang dapat digeser (slider/carousel), sehingga saya dapat melihat karya secara fokus dan visual tanpa membuat halaman memanjang ke bawah saat jumlah proyek bertambah banyak.
 
 ### Acceptance Criteria
 
-1. THE Projects_Section SHALL menampilkan daftar Project_Card dalam tata letak grid.
-2. THE Project_Card SHALL menampilkan: gambar cover, judul project, deskripsi singkat, dan daftar badge teknologi yang digunakan.
-3. WHEN Visitor mengklik sebuah Project_Card, THE App SHALL menampilkan halaman baru di route `/projects/:slug`.
-4. IF tidak ada project yang tersimpan, THEN THE Projects_Section SHALL menampilkan pesan bahwa belum ada project yang ditampilkan.
-5. THE Projects_Section SHALL menampilkan skeleton loading selama data dimuat dari Supabase.
+1. **Interactive 3D Showcase Carousel**: THE Projects_Section SHALL menyajikan daftar karya proyek dalam format *3D Coverflow Showcase Gallery Carousel* horizontal yang dapat digeser ke kiri dan kanan secara interaktif.
+2. **Center Active Focus & Perspective Stacking**: THE Carousel SHALL menampilkan proyek yang sedang aktif tepat di posisi tengah dengan skala penuh (1.05x–1.1x), z-index tertinggi, dan border bercahaya (*glow*), sedangkan kartu-kartu di sisi kiri dan kanan tersusun berjenjang (*cascaded*) dengan efek perspektif halus dan skala mengecil (0.85x).
+3. **Active Detail View di Bawah Showcase**: THE Projects_Section SHALL menampilkan detail komprehensif dari proyek yang sedang aktif di tengah (Judul Proyek, Deskripsi Lengkap, Tag Teknologi yang digunakan, dan Tombol Tautan *"Lihat Detail Proyek →"* mengarah ke `/projects/:slug`).
+4. **Kontrol Geser Lengkap & Interaktif**:
+   - THE Carousel SHALL menyediakan tombol panah navigasi Sebelumnya (◀) dan Selanjutnya (▶).
+   - THE Carousel SHALL menyediakan indikator pagination dots di bawah slider untuk mengetahui posisi dan melompat ke proyek tertentu.
+   - WHEN Visitor mengklik kartu proyek di sisi kiri atau kanan, THE Carousel SHALL otomatis menggeser kartu tersebut menjadi kartu aktif di tengah.
+   - THE Carousel SHALL mendukung gesture sentuhan geser (*touch swipe / drag*) pada perangkat ponsel pintar dan tablet.
+5. **Fixed Section Height**: THE Projects_Section SHALL mempertahankan tinggi section yang ringkas dan konstan terlepas dari banyaknya proyek yang disimpan (tidak memanjang ke bawah).
+6. IF tidak ada project yang tersimpan, THEN THE Projects_Section SHALL menampilkan pesan ramah bahwa belum ada project.
+7. THE Projects_Section SHALL menampilkan skeleton loading selama data dimuat dari Supabase.
 
 ---
 
@@ -101,31 +108,42 @@
 
 ---
 
-## Requirement 7: Section Experience & Education
+## Requirement 7: Section Journey & Qualifications (Pendidikan, Pengalaman, & Keahlian)
 
-**User Story:** Sebagai Visitor, saya ingin melihat riwayat pengalaman kerja dan pendidikan pemilik, sehingga saya dapat menilai latar belakang profesional mereka.
+**User Story:** Sebagai Visitor, saya ingin menjelajahi riwayat pendidikan, pengalaman kerja profesional, dan keahlian teknis pemilik dalam satu wadah interaktif yang rapi, sehingga saya dapat menilai kompetensi dan rekam jejak mereka secara menyeluruh tanpa harus menggulir halaman terlalu panjang.
 
 ### Acceptance Criteria
 
-1. THE Experience_Section SHALL menampilkan riwayat dalam format timeline vertikal.
-2. THE Experience_Section SHALL menampilkan pengalaman kerja dan riwayat pendidikan dalam satu timeline yang dibedakan secara visual.
-3. THE Timeline_Item SHALL menampilkan: nama perusahaan/institusi, jabatan/jurusan, periode (bulan & tahun mulai hingga selesai atau "Sekarang"), dan deskripsi singkat.
-4. THE Experience_Section SHALL mengurutkan entri dari yang terbaru ke terlama.
-5. THE Experience_Section SHALL menggunakan lebar container utama yang konsisten (max-w-6xl) agar perataan judul section (SectionTitle) sejajar presisi dengan section lainnya di halaman utama, sementara kontainer linimasa (Timeline Container) diposisikan terpusat secara simetris di tengah layar (mx-auto) agar kartu pengalaman kerja dan pendidikan tidak timpang ke kiri.
-6. THE Timeline_Node_Icon SHALL memiliki latar belakang solid dan layering yang tepat (z-index) sehingga garis linimasa vertikal tidak menembus atau menumpuk secara transparan di dalam ikon.
+1. THE Journey_Section SHALL menampilkan judul section (SectionTitle) dan deskripsinya secara terpusat di tengah (`align="center"`), serasi dengan bilah navigasi tab (Pill Switcher) yang juga berada di tengah.
+2. THE Journey_Section SHALL menyediakan bilah navigasi tab berbentuk kapsul/pill switcher di bagian atas section dengan 3 tab berurutan: **[ Pendidikan ]**, **[ Pengalaman ]**, dan **[ Keahlian ]**.
+3. THE Journey_Section SHALL menerapkan Scroll Reveal Animation dan transisi kemunculan halus (*fade-in & slide-up*) pada seluruh judul section, bilah tab, dan pada setiap kartu individu di dalam tab Pendidikan, Pengalaman, maupun grid Keahlian baik saat pertama kali digulir maupun saat berpindah tab.
+4. THE Journey_Section SHALL menggunakan lebar kontainer penuh (`max-w-6xl`) di mana garis alur vertikal dan ikon penanda di sisi kiri tersusun rapi memberikan ruang horizontal yang luas bagi kartu linimasa.
+5. **Tata Letak Selang-Seling (Alternating / Zigzag Layout)**: Pada Tab Pendidikan dan Tab Pengalaman, setiap kartu linimasa ber-border SHALL membagi kolom teks dan kolom foto secara berselang-seling pada layar desktop:
+   - Entri ganjil (indeks 0, 2, ...): Kolom Teks berada di sisi Kiri dan Kolom Foto berada di sisi Kanan.
+   - Entri genap (indeks 1, 3, ...): Kolom Foto berada di sisi Kiri dan Kolom Teks berada di sisi Kanan.
+6. **Penempatan Badge Kalender di Baris Atas & Galeri Foto di Tengah Vertikal**: THE Card SHALL menempatkan badge kalender/periode waktu di baris paling atas kolom foto sehingga selalu sejajar horizontal dengan nama instansi/perusahaan, sedangkan wadah galeri foto mini diposisikan secara vertikal di tengah kartu (`my-auto` / vertically centered) agar komposisi visual seimbang dan foto tidak menumpuk canggung di bagian atas meninggalkan ruang kosong besar di bawahnya.
+7. **Wadah Foto Dinamis & Tanpa Hardcode**:
+   - Kolom foto SHALL menyusun thumbnail foto secara dinamis dan rapi mulai dari 1 hingga 4 foto mini tanpa pop-up modal.
+   - IF suatu entri tidak memiliki foto di database, THEN kolom teks SHALL otomatis mengambil lebar penuh 100% (`col-span-12`), dan THE App SHALL TIDAK memaksakan gambar fallback hardcode apapun.
+8. **Tab 1 — Pendidikan**: THE Tab_Pendidikan SHALL menampilkan riwayat institusi, jurusan/gelar, periode tahun, deskripsi studi, serta foto dokumentasi perkuliahan (jika tersedia).
+9. **Tab 2 — Pengalaman**: THE Tab_Pengalaman SHALL menampilkan riwayat perusahaan, jabatan/role, periode tanggal, deskripsi tanggung jawab, serta foto dokumentasi pekerjaan atau sertifikat penugasan (jika tersedia).
+10. **Tab 3 — Keahlian**: THE Tab_Keahlian SHALL menampilkan daftar teknologi dan alat bantu dalam bentuk grid kartu ikon *squircle* modern bercahaya lembut (*subtle glow*) disertai logo dan label teknologi (seperti Vue.js, Tailwind, JavaScript, Supabase, Git, dll.) sesuai konsep referensi desain modern.
 
 ---
 
 ## Requirement 8: Section Certificates
 
-**User Story:** Sebagai Visitor, saya ingin melihat daftar sertifikat yang dimiliki, sehingga saya dapat memverifikasi kredensial pemilik.
+**User Story:** Sebagai Visitor, saya ingin menjelajahi bukti kredensial dan lisensi kompetensi pemilik dalam format showcase galeri interaktif yang dapat digeser (slider/carousel), sehingga saya dapat memverifikasi sertifikat dengan nyaman tanpa membuat halaman web memanjang ke bawah.
 
 ### Acceptance Criteria
 
-1. THE Certificates_Section SHALL menampilkan daftar Certificate_Card dalam tata letak grid.
-2. THE Certificate_Card SHALL menampilkan: gambar thumbnail sertifikat, nama sertifikat, nama penerbit (issuer), dan tanggal terbit.
-3. WHEN Visitor mengklik sebuah Certificate_Card, THE App SHALL menampilkan halaman baru di route `/certificates/:id`.
-4. THE Certificates_Section SHALL menampilkan skeleton loading selama data dimuat dari Supabase.
+1. **Interactive 3D Showcase Carousel**: THE Certificates_Section SHALL menyajikan kredensial sertifikasi dalam format *3D Coverflow Showcase Gallery Carousel* horizontal yang dapat digeser ke kiri dan kanan secara interaktif.
+2. **Center Active Focus & Perspective Stacking**: THE Carousel SHALL menampilkan sertifikat yang sedang aktif tepat di posisi tengah dengan pratinjau sertifikat ukuran besar, bingkai bersinar (*glow*), dan z-index tertinggi, sementara kartu di sisi kiri dan kanan berjenjang dengan perspektif halus.
+3. **Active Detail View di Bawah Showcase**: THE Certificates_Section SHALL menampilkan informasi detail sertifikat yang aktif di tengah (Nama Sertifikat, Penerbit resmi, Tanggal terbit, Kategori, dan Tombol Tautan *"Lihat Detail Sertifikat →"* mengarah ke `/certificates/:id`).
+4. **Kontrol Geser Lengkap & Interaktif**:
+   - THE Carousel SHALL menyediakan tombol navigasi panah ◀ dan ▶, pagination dots, klik langsung pada kartu samping, serta dukungan sentuhan geser (*touch swipe*).
+5. **Fixed Section Height**: THE Certificates_Section SHALL mempertahankan tinggi section yang ringkas dan konstan terlepas dari banyaknya sertifikat yang tercatat.
+6. THE Certificates_Section SHALL menampilkan skeleton loading selama data dimuat dari Supabase.
 
 ---
 
@@ -144,14 +162,23 @@
 
 ## Requirement 10: Footer & Kontak
 
-**User Story:** Sebagai Visitor, saya ingin menemukan cara untuk menghubungi pemilik portfolio, sehingga saya dapat memulai komunikasi.
+**User Story:** Sebagai Visitor, saya ingin dapat langsung mengirimkan pesan melalui formulir kontak atau menghubungi pemilik portofolio melalui kanal sosial resmi, sehingga komunikasi dan tawaran kerja sama dapat terjalin dengan mudah.
 
 ### Acceptance Criteria
 
-1. THE Footer SHALL menampilkan tautan ke email, LinkedIn, dan GitHub pemilik.
-2. WHEN Visitor mengklik tautan email, THE App SHALL membuka aplikasi email default dengan alamat email pemilik.
-3. WHEN Visitor mengklik tautan LinkedIn atau GitHub, THE App SHALL membuka URL tersebut di tab baru.
-4. THE Footer SHALL menampilkan teks hak cipta dengan nama pemilik dan tahun berjalan.
+1. THE Contact_Section SHALL mengusung tata letak 2 kolom responsif:
+   - Kolom Kiri: Daftar tautan kontak langsung (Email, GitHub, LinkedIn, dan Instagram) dengan ikon merek, teks deskriptif, dan indikator hover.
+   - Kolom Kanan: Kartu formulir pengiriman pesan langsung ("Kirim Pesan" / "Hubungi Saya") berlatar dark modern.
+2. THE Contact_Form SHALL menyediakan kolom isian nama lengkap (`name`), alamat email (`email`), dan isi pesan (`message`) beserta ikon penjelas.
+3. WHEN Visitor mengisi formulir dengan valid dan menekan tombol "Kirim Pesan", THE App SHALL menjalankan mekanisme pengiriman dua arah (*Dual-Delivery*):
+   - Meneruskan pesan secara instan ke email pribadi pemilik portofolio (`aryakusuma863@gmail.com`) via email gateway.
+   - Mencatat dan menyimpan data pesan ke dalam tabel `contact_messages` Supabase untuk keperluan arsip admin.
+4. DURING pengiriman pesan, THE App SHALL menampilkan status loading/indikator pengiriman pada tombol kirim.
+5. UPON pengiriman berhasil, THE App SHALL menampilkan banner notifikasi sukses dan mengosongkan kolom formulir.
+6. IF pengiriman gagal karena kendala jaringan, THE App SHALL menampilkan pesan kesalahan yang ramah dan mempertahankan isian formulir.
+7. WHEN Visitor mengklik tautan email di kolom kiri, THE App SHALL membuka aplikasi email default dengan alamat email pemilik.
+8. WHEN Visitor mengklik tautan media sosial (GitHub, LinkedIn, Instagram), THE App SHALL membuka tautan tersebut di tab baru secara aman (`target="_blank"`).
+9. THE Footer SHALL menampilkan teks hak cipta dengan nama pemilik dan tahun berjalan.
 
 ---
 
@@ -176,12 +203,17 @@
 
 ### Acceptance Criteria
 
-1. THE Admin_Panel SHALL menyediakan halaman terpisah untuk mengelola: Profil, Projects, Certificates, Skills, dan Experience & Education.
-2. WHEN Admin menambah atau mengubah data, THE App SHALL memvalidasi input sebelum menyimpan ke Supabase.
-3. WHEN Admin menekan tombol hapus pada sebuah entri, THE App SHALL menampilkan konfirmasi sebelum menghapus data secara permanen.
-4. THE Admin_Panel SHALL menyediakan antarmuka upload gambar untuk cover project, gambar sertifikat, foto profil, dan diagram arsitektur project.
-5. THE Admin_Panel SHALL menampilkan daftar pesan yang masuk dari pengunjung beserta status sudah dibaca atau belum.
-6. WHEN Admin menandai pesan sebagai sudah dibaca, THE App SHALL memperbarui status pesan tersebut.
+1. THE Admin_Panel SHALL menyusun urutan menu navigasi sidebar secara terstruktur: **Dashboard (`/admin/dashboard`)**, **Profil & Foto (`/admin/profile`)**, **Pendidikan Formal (`/admin/education`)**, **Pengalaman Kerja (`/admin/experience`)**, **Skills (`/admin/skills`)**, **Projects (`/admin/projects`)**, **Certificates (`/admin/certificates`)**, dan **Pesan Masuk (`/admin/messages`)**.
+2. THE Admin_Profile_View SHALL menyediakan form untuk memperbarui data identitas pemilik (nama, title, bio, tagline, sosial media, cv_url), dua uploader gambar terpisah (Foto Hero dan Foto Tentang Saya), serta **narasi lengkap Tentang Saya (Paragraf 1 Bio, Paragraf 2 Filosofi Kerja bout_philosophy, dan 4 Kartu Sorotan & Prinsip bout_highlights)** yang terintegrasi dinamis ke halaman publik.
+3. THE Admin_Experience_Form & Education_Form SHALL secara otomatis menentukan kategori riwayat (`education` atau `work`) berdasarkan konteks halaman pemanggil tanpa memerlukan tombol pemilih kategori manual di dalam modal, serta menyediakan Multi-Image Uploader yang memungkinkan admin mengatur ulang urutan foto (#1, #2, #3, #4) menggunakan tombol geser kiri/kanan.
+4. THE Admin_Skill_Form & Skills_View SHALL menggunakan latar belakang solid konsisten (`bg-surface-alt border border-border`) dan TIDAK menggunakan latar transparan/bening yang memperlihatkan teks di belakang modal.
+5. THE Admin_Panel & Frontend SHALL mengurutkan seluruh entri konten (**Pengalaman Kerja, Pendidikan Formal, Skills, Projects, dan Certificates**) berdasarkan `sort_order ASC`, serta menyediakan kontrol geser posisi (Naikkan ▲ / Turunkan ▼) dan indikator nomor urut (`#1`, `#2`, ...) pada setiap baris/kartu daftar di admin sehingga admin dapat menentukan entri mana yang tampil paling atas atau urutan tampilan publik secara instan.
+4. WHEN Admin menambah atau mengubah data, THE App SHALL memvalidasi input sebelum menyimpan ke Supabase.
+5. WHEN Admin menekan tombol hapus pada sebuah entri, THE App SHALL menampilkan konfirmasi sebelum menghapus data secara permanen.
+6. THE Admin_Panel SHALL menyediakan antarmuka upload gambar untuk cover project, gambar sertifikat, foto profil Hero, foto Tentang Saya, galeri foto pengalaman/pendidikan, dan diagram arsitektur project.
+7. THE Admin_Panel SHALL menampilkan daftar pesan yang masuk dari pengunjung beserta status sudah dibaca atau belum.
+8. WHEN Admin menandai pesan sebagai sudah dibaca, THE App SHALL memperbarui status pesan tersebut.
+9. **Interactive Image Cropper / Framing**: THE Image_Uploader and Multi_Image_Uploader SHALL menyediakan modal pemotong gambar interaktif (ImageCropperModal) saat Admin memilih berkas foto, yang memungkinkan Admin menggeser (drag/pan), memperbesar/memperkecil (zoom slider), serta memilih preset rasio aspek (16:9 untuk Cover Proyek & Linimasa, 4:3 untuk Sertifikat, 3:4 untuk Foto Tentang Saya, 1:1 untuk Foto Hero, atau Bebas/Free), dan memotong gambar secara presisi menggunakan HTML5 Canvas sebelum disimpan ke Supabase Storage, sehingga tidak ada bagian penting foto yang terpotong canggung di halaman publik.
 
 ---
 

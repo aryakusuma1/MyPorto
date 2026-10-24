@@ -43,7 +43,25 @@ let charIndex = 0
 let isDeleting = false
 let typingTimeout = null
 
+function startTyping() {
+  if (typingTimeout) {
+    clearTimeout(typingTimeout)
+    typingTimeout = null
+  }
+  roleIndex = 0
+  charIndex = 0
+  isDeleting = false
+  displayedRole.value = ''
+  typeLoop()
+}
+
 function typeLoop() {
+  // Pastikan timer lama selalu dibersihkan agar tidak pernah ada 2 loop berjalan bersamaan
+  if (typingTimeout) {
+    clearTimeout(typingTimeout)
+    typingTimeout = null
+  }
+
   if (profileStore.loading) return
 
   const currentRoles = roles.value
@@ -63,15 +81,18 @@ function typeLoop() {
     charIndex++
   }
 
-  let typingSpeed = isDeleting ? 40 : 80
+  // Kecepatan mengetik santai & jelas
+  let typingSpeed = isDeleting ? 40 : 100
 
+  // Saat satu peran/title selesai diketik secara utuh:
   if (!isDeleting && charIndex === currentRole.length) {
-    typingSpeed = 2000 // Tahan selama 2 detik setelah selesai mengetik
+    typingSpeed = 1500 // Jeda 1.5 detik untuk SEMUA kalimat sebelum mulai dihapus
     isDeleting = true
   } else if (isDeleting && charIndex === 0) {
+    // Saat peran selesai dihapus utuh:
     isDeleting = false
     roleIndex = (roleIndex + 1) % currentRoles.length
-    typingSpeed = 400 // Jeda sebelum mulai mengetik kata berikutnya
+    typingSpeed = 650 // Jeda sebelum mulai mengetik peran berikutnya
   }
 
   typingTimeout = setTimeout(typeLoop, typingSpeed)
@@ -85,29 +106,15 @@ function triggerEntrance() {
   })
 }
 
+// Hanya restart typing jika data title dari profil benar-benar berubah
 watch(
-  () => profileStore.loading,
-  (isLoading) => {
-    if (!isLoading) {
-      triggerEntrance()
-      if (typingTimeout) clearTimeout(typingTimeout)
-      roleIndex = 0
-      charIndex = 0
-      isDeleting = false
-      typeLoop()
+  () => profile.value?.title,
+  (newTitle, oldTitle) => {
+    if (newTitle !== oldTitle && !profileStore.loading) {
+      startTyping()
     }
   }
 )
-
-watch(roles, () => {
-  if (!profileStore.loading) {
-    if (typingTimeout) clearTimeout(typingTimeout)
-    roleIndex = 0
-    charIndex = 0
-    isDeleting = false
-    typeLoop()
-  }
-})
 
 function scrollTo(id) {
   const element = document.getElementById(id)
@@ -118,10 +125,8 @@ function scrollTo(id) {
 
 onMounted(async () => {
   await profileStore.fetchProfile()
-  if (!profileStore.loading) {
-    triggerEntrance()
-    typeLoop()
-  }
+  triggerEntrance()
+  startTyping()
 })
 
 onUnmounted(() => {

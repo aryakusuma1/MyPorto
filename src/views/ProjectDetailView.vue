@@ -151,23 +151,23 @@ onMounted(async () => {
             </div>
           </header>
 
-          <!-- Cover Image or Banner Placeholder -->
+          <!-- Cover Image or Banner Placeholder (Ramping, Proporsional, Tidak Raksasa) -->
           <div
-            class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg transition-all duration-700 delay-150 ease-out transform"
+            class="max-w-2xl mx-auto w-full rounded-2xl overflow-hidden border border-border/80 bg-surface-alt/60 shadow-xl transition-all duration-700 delay-150 ease-out transform p-2 sm:p-3 flex items-center justify-center"
             :class="isHeaderRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"
           >
             <img
               v-if="project.cover_url"
               :src="project.cover_url"
               :alt="project.title"
-              class="w-full h-auto max-h-[480px] object-cover"
+              class="w-auto max-w-full h-auto max-h-[320px] sm:max-h-[360px] object-contain rounded-xl mx-auto"
             />
             <div
               v-else
-              class="w-full h-64 sm:h-80 flex flex-col items-center justify-center bg-gradient-to-br from-surface-raised to-surface-alt p-8 text-center"
+              class="w-full h-48 sm:h-56 flex flex-col items-center justify-center bg-gradient-to-br from-surface-raised to-surface-alt p-6 text-center"
             >
-              <FolderGit2 class="w-16 h-16 text-accent/50 mb-3" />
-              <span class="text-ink font-heading font-semibold text-xl">{{ project.title }}</span>
+              <FolderGit2 class="w-12 h-12 text-accent/50 mb-2" />
+              <span class="text-ink font-heading font-semibold text-lg">{{ project.title }}</span>
               <span class="text-ink-muted text-xs mt-1">Pratinjau visual proyek</span>
             </div>
           </div>
@@ -251,8 +251,8 @@ onMounted(async () => {
             <p v-if="details.architecture" class="text-ink-muted text-base leading-relaxed">
               {{ details.architecture }}
             </p>
-            <div v-if="details.diagram_url" class="rounded-lg overflow-hidden border border-border mt-4">
-              <img :src="details.diagram_url" alt="Diagram Arsitektur" class="w-full h-auto" />
+            <div v-if="details.diagram_url" class="rounded-xl overflow-hidden border border-border/80 bg-surface-alt/60 p-2 mt-4 max-w-xl mx-auto">
+              <img :src="details.diagram_url" alt="Diagram Arsitektur" class="w-full h-auto max-h-[320px] object-contain rounded-lg mx-auto" />
             </div>
           </section>
 
@@ -308,10 +308,10 @@ onMounted(async () => {
               <div
                 v-for="(shot, idx) in details.screenshots"
                 :key="idx"
-                class="rounded-lg overflow-hidden border border-border bg-surface-alt"
+                class="rounded-xl overflow-hidden border border-border/80 bg-surface-alt/70 p-2 flex flex-col items-center shadow-sm"
               >
-                <img :src="shot.url" :alt="shot.caption || 'Screenshot'" class="w-full h-auto object-cover" />
-                <p v-if="shot.caption" class="p-2.5 text-xs text-ink-muted text-center border-t border-border/40">
+                <img :src="shot.url" :alt="shot.caption || 'Screenshot'" class="w-auto max-w-full h-auto max-h-56 object-contain rounded-lg mx-auto" />
+                <p v-if="shot.caption" class="p-2 text-xs text-ink-muted text-center border-t border-border/40 mt-1.5 w-full">
                   {{ shot.caption }}
                 </p>
               </div>

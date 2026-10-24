@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { supabase } from '../lib/supabase'
 
 import HomeView from '../views/HomeView.vue'
@@ -9,10 +9,12 @@ import NotFoundView from '../views/NotFoundView.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import LoginView from '../views/admin/LoginView.vue'
 import DashboardView from '../views/admin/DashboardView.vue'
+import ProfileView from '../views/admin/ProfileView.vue'
 import ProjectsView from '../views/admin/ProjectsView.vue'
 import CertificatesView from '../views/admin/CertificatesView.vue'
 import SkillsView from '../views/admin/SkillsView.vue'
 import ExperienceView from '../views/admin/ExperienceView.vue'
+import EducationView from '../views/admin/EducationView.vue'
 import MessagesView from '../views/admin/MessagesView.vue'
 
 const routes = [
@@ -51,6 +53,11 @@ const routes = [
         component: DashboardView,
       },
       {
+        path: 'profile',
+        name: 'admin-profile',
+        component: ProfileView,
+      },
+      {
         path: 'projects',
         name: 'admin-projects',
         component: ProjectsView,
@@ -69,6 +76,11 @@ const routes = [
         path: 'experience',
         name: 'admin-experience',
         component: ExperienceView,
+      },
+      {
+        path: 'education',
+        name: 'admin-education',
+        component: EducationView,
       },
       {
         path: 'messages',

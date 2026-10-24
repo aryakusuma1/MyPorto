@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { reactive, watch, ref } from 'vue'
 import { X } from 'lucide-vue-next'
 import { supabase } from '../../../lib/supabase'
@@ -199,6 +199,7 @@ async function handleSubmit() {
           v-model="form.image_url"
           folder="certificates"
           label="Gambar / Sertifikat Digital"
+          aspect-ratio="4:3"
         />
 
         <!-- Actions -->
