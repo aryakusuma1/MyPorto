@@ -133,25 +133,25 @@ onMounted(() => {
         subtitle-max-width="max-w-4xl"
       />
 
-      <!-- Pill Tab Switcher Navbar (Naik Lebih Dekat ke Showcard) -->
-      <div class="flex justify-center mb-5 sm:mb-6 px-2">
+      <!-- Pill Tab Switcher Navbar (Responsif Kompak di Mobile, Lega di Desktop) -->
+      <div class="flex justify-center mb-5 sm:mb-6 px-1 sm:px-2">
         <div
-          class="w-full max-w-xl sm:max-w-2xl p-2 sm:p-2.5 rounded-2xl sm:rounded-full bg-surface-alt/95 border border-border backdrop-blur-xl shadow-2xl flex items-center justify-between gap-2 sm:gap-3"
+          class="w-full max-w-xl sm:max-w-2xl p-1.5 sm:p-2.5 rounded-xl sm:rounded-full bg-surface-alt/95 border border-border backdrop-blur-xl shadow-2xl flex items-center justify-between gap-1 sm:gap-3"
         >
           <button
             v-for="tab in tabs"
             :key="tab.id"
             type="button"
             @click="activeTab = tab.id"
-            class="flex-1 py-3 sm:py-3.5 px-3 sm:px-6 rounded-xl sm:rounded-full text-sm sm:text-base font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:gap-2.5 cursor-pointer select-none text-center"
+            class="flex-1 min-w-0 py-2 sm:py-3.5 px-1.5 sm:px-6 rounded-lg sm:rounded-full text-xs sm:text-base font-semibold transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2.5 cursor-pointer select-none text-center"
             :class="
               activeTab === tab.id
                 ? 'bg-surface-raised text-accent shadow-lg border border-accent/40 scale-[1.02] ring-1 ring-accent/30 font-bold'
                 : 'text-ink-muted hover:text-ink hover:bg-surface-raised/50'
             "
           >
-            <component :is="tab.icon" class="w-4 h-4 sm:w-5 sm:h-5 text-current shrink-0" />
-            <span class="tracking-wide">{{ tab.label }}</span>
+            <component :is="tab.icon" class="w-3.5 h-3.5 sm:w-5 sm:h-5 text-current shrink-0" />
+            <span class="truncate tracking-wide">{{ tab.label }}</span>
           </button>
         </div>
       </div>

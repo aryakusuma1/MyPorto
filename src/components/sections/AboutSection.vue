@@ -86,7 +86,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section id="about" class="py-20 border-t border-border/50">
+  <section id="about" class="py-20 border-t border-border/50 relative overflow-hidden">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionTitle
         tag="Tentang Saya"

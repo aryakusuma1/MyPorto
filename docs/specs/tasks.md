@@ -286,7 +286,7 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
   - [x] 7.19 Terapkan kontrol penataan urutan posisi (Naikkan ▲ / Turunkan ▼) dan `sort_order` pada CRUD Admin Skills (`SkillsView.vue`), Projects (`ProjectsView.vue`, `ProjectForm.vue`), dan Certificates (`CertificatesView.vue`)
     - _Requirements: 12.5_
 
-- [ ] 8. Checkpoint akhir - Polish & Deploy
+- [x] 8. Checkpoint akhir - Polish & Deploy
   - [x] 8.1 Reset scroll ke Hero saat refresh (manual scroll restoration & router reset)
   - [x] 8.2 Terapkan Staggered Entrance Animation & Scale-in Glow pada Hero Section
   - [x] 8.3 Terapkan Page Entrance & Scroll Reveal Animation pada Halaman Detail (Projects & Certificates)
@@ -339,7 +339,7 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
   - [x] 8.9 Periksa tampilan responsif di mobile, tablet, desktop
   - [x] 8.10 Periksa konsistensi warna, spacing, dan tipografi
   - [x] 8.11 Pastikan semua navigation guard admin bekerja
-  - [ ] 8.12 Deploy ke Vercel dengan environment variables yang benar (setelah user menyetujui)
+  - [x] 8.12 Deploy ke Vercel dengan environment variables yang benar (setelah user menyetujui)
   - _Requirements: semua_
 
 ---
