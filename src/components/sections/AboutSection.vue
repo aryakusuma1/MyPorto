@@ -6,7 +6,7 @@ import { useIntersection } from '../../composables/useIntersection'
 import SectionTitle from '../ui/SectionTitle.vue'
 import BaseButton from '../ui/BaseButton.vue'
 import BaseCard from '../ui/BaseCard.vue'
-import defaultAboutImg from '../../assets/about.jpg'
+import defaultHeroImg from '../../assets/hero.png'
 
 const profileStore = useProfileStore()
 const contentRef = ref(null)
@@ -44,7 +44,7 @@ const defaultFacts = [
 const profile = computed(() => profileStore.profile)
 
 const aboutPhoto = computed(() => {
-  return profile.value?.about_photo_url || defaultAboutImg
+  return profile.value?.about_photo_url || profile.value?.avatar_url || defaultHeroImg
 })
 
 const bioText = computed(() => {
