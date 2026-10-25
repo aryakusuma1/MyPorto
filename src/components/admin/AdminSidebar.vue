@@ -1,12 +1,14 @@
-﻿<script setup>
+<script setup>
 import { computed } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import {
   LayoutDashboard,
+  User,
   FolderGit2,
   Award,
   Wrench,
   Briefcase,
+  GraduationCap,
   MessageSquare,
   LogOut,
   ExternalLink,
@@ -20,10 +22,12 @@ const route = useRoute()
 
 const navLinks = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'Profil & Biodata', path: '/admin/profile', icon: User },
+  { name: 'Pendidikan Formal', path: '/admin/education', icon: GraduationCap },
+  { name: 'Pengalaman Kerja', path: '/admin/experience', icon: Briefcase },
+  { name: 'Skills', path: '/admin/skills', icon: Wrench },
   { name: 'Projects', path: '/admin/projects', icon: FolderGit2 },
   { name: 'Certificates', path: '/admin/certificates', icon: Award },
-  { name: 'Skills', path: '/admin/skills', icon: Wrench },
-  { name: 'Experience', path: '/admin/experience', icon: Briefcase },
   { name: 'Pesan Masuk', path: '/admin/messages', icon: MessageSquare },
 ]
 

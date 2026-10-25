@@ -1,5 +1,5 @@
-﻿<script setup>
-import { computed, onMounted } from 'vue'
+<script setup>
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -12,6 +12,7 @@ import {
   FolderGit2,
 } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project.store'
+import { useIntersection } from '../composables/useIntersection'
 import AppNavbar from '../components/layout/AppNavbar.vue'
 import BaseButton from '../components/ui/BaseButton.vue'
 import BaseBadge from '../components/ui/BaseBadge.vue'
@@ -26,14 +27,48 @@ const slug = computed(() => route.params.slug)
 const project = computed(() => projectStore.currentProject)
 const details = computed(() => project.value?.project_details || {})
 
+const isHeaderRevealed = ref(false)
+
+// Section refs & intersection observers for scroll reveal
+const techRef = ref(null)
+const overviewRef = ref(null)
+const featuresRef = ref(null)
+const archRef = ref(null)
+const challengesRef = ref(null)
+const screenshotsRef = ref(null)
+
+const { isVisible: techVisible, observe: observeTech } = useIntersection({ threshold: 0.15 })
+const { isVisible: overviewVisible, observe: observeOverview } = useIntersection({ threshold: 0.15 })
+const { isVisible: featuresVisible, observe: observeFeatures } = useIntersection({ threshold: 0.15 })
+const { isVisible: archVisible, observe: observeArch } = useIntersection({ threshold: 0.15 })
+const { isVisible: challengesVisible, observe: observeChallenges } = useIntersection({ threshold: 0.15 })
+const { isVisible: screenshotsVisible, observe: observeScreenshots } = useIntersection({ threshold: 0.15 })
+
 function goBack() {
   router.push('/#projects')
+}
+
+function initObservers() {
+  nextTick(() => {
+    setTimeout(() => {
+      isHeaderRevealed.value = true
+    }, 50)
+
+    if (techRef.value) observeTech(techRef.value)
+    if (overviewRef.value) observeOverview(overviewRef.value)
+    if (featuresRef.value) observeFeatures(featuresRef.value)
+    if (archRef.value) observeArch(archRef.value)
+    if (challengesRef.value) observeChallenges(challengesRef.value)
+    if (screenshotsRef.value) observeScreenshots(screenshotsRef.value)
+  })
 }
 
 onMounted(async () => {
   const result = await projectStore.fetchProjectBySlug(slug.value)
   if (!result && !projectStore.loading) {
     router.replace({ name: 'not-found' })
+  } else {
+    initObservers()
   }
 })
 </script>
@@ -65,8 +100,11 @@ onMounted(async () => {
 
         <!-- Project Detail Content -->
         <article v-else-if="project" class="space-y-12">
-          <!-- Header Area -->
-          <header class="space-y-4">
+          <!-- Header Area with Entrance Animation -->
+          <header
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="isHeaderRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+          >
             <div class="flex flex-wrap items-center gap-2">
               <BaseBadge variant="accent">
                 {{ project.category || 'Software Project' }}
@@ -113,26 +151,33 @@ onMounted(async () => {
             </div>
           </header>
 
-          <!-- Cover Image or Banner Placeholder -->
-          <div class="w-full rounded-xl overflow-hidden border border-border bg-surface-alt shadow-lg">
+          <!-- Cover Image or Banner Placeholder (Ramping, Proporsional, Tidak Raksasa) -->
+          <div
+            class="max-w-2xl mx-auto w-full rounded-2xl overflow-hidden border border-border/80 bg-surface-alt/60 shadow-xl transition-all duration-700 delay-150 ease-out transform p-2 sm:p-3 flex items-center justify-center"
+            :class="isHeaderRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"
+          >
             <img
               v-if="project.cover_url"
               :src="project.cover_url"
               :alt="project.title"
-              class="w-full h-auto max-h-[480px] object-cover"
+              class="w-auto max-w-full h-auto max-h-[320px] sm:max-h-[360px] object-contain rounded-xl mx-auto"
             />
             <div
               v-else
-              class="w-full h-64 sm:h-80 flex flex-col items-center justify-center bg-gradient-to-br from-surface-raised to-surface-alt p-8 text-center"
+              class="w-full h-48 sm:h-56 flex flex-col items-center justify-center bg-gradient-to-br from-surface-raised to-surface-alt p-6 text-center"
             >
-              <FolderGit2 class="w-16 h-16 text-accent/50 mb-3" />
-              <span class="text-ink font-heading font-semibold text-xl">{{ project.title }}</span>
+              <FolderGit2 class="w-12 h-12 text-accent/50 mb-2" />
+              <span class="text-ink font-heading font-semibold text-lg">{{ project.title }}</span>
               <span class="text-ink-muted text-xs mt-1">Pratinjau visual proyek</span>
             </div>
           </div>
 
-          <!-- Tech Stack -->
-          <section class="space-y-4">
+          <!-- Tech Stack (Scroll Reveal) -->
+          <section
+            ref="techRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="techVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <Cpu class="w-5 h-5 text-accent" />
               Teknologi yang Digunakan
@@ -149,8 +194,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Overview Section -->
-          <section v-if="details.overview" class="space-y-4">
+          <!-- Overview Section (Scroll Reveal) -->
+          <section
+            v-if="details.overview"
+            ref="overviewRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="overviewVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <Layers class="w-5 h-5 text-accent" />
               Gambaran Umum Proyek
@@ -160,8 +210,13 @@ onMounted(async () => {
             </p>
           </section>
 
-          <!-- Key Features -->
-          <section v-if="details.features && details.features.length > 0" class="space-y-4">
+          <!-- Key Features (Scroll Reveal) -->
+          <section
+            v-if="details.features && details.features.length > 0"
+            ref="featuresRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="featuresVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <CheckCircle2 class="w-5 h-5 text-accent" />
               Fitur Utama
@@ -183,21 +238,31 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Architecture & Technical Design -->
-          <section v-if="details.architecture || details.diagram_url" class="space-y-4">
+          <!-- Architecture & Technical Design (Scroll Reveal) -->
+          <section
+            v-if="details.architecture || details.diagram_url"
+            ref="archRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="archVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink">
               Arsitektur & Desain Sistem
             </h2>
             <p v-if="details.architecture" class="text-ink-muted text-base leading-relaxed">
               {{ details.architecture }}
             </p>
-            <div v-if="details.diagram_url" class="rounded-lg overflow-hidden border border-border mt-4">
-              <img :src="details.diagram_url" alt="Diagram Arsitektur" class="w-full h-auto" />
+            <div v-if="details.diagram_url" class="rounded-xl overflow-hidden border border-border/80 bg-surface-alt/60 p-2 mt-4 max-w-xl mx-auto">
+              <img :src="details.diagram_url" alt="Diagram Arsitektur" class="w-full h-auto max-h-[320px] object-contain rounded-lg mx-auto" />
             </div>
           </section>
 
-          <!-- Challenges & Solutions -->
-          <section v-if="details.challenges && details.challenges.length > 0" class="space-y-4">
+          <!-- Challenges & Solutions (Scroll Reveal) -->
+          <section
+            v-if="details.challenges && details.challenges.length > 0"
+            ref="challengesRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="challengesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink flex items-center gap-2">
               <AlertCircle class="w-5 h-5 text-accent" />
               Tantangan & Solusi Teknis
@@ -229,8 +294,13 @@ onMounted(async () => {
             </div>
           </section>
 
-          <!-- Screenshots Gallery -->
-          <section v-if="details.screenshots && details.screenshots.length > 0" class="space-y-4">
+          <!-- Screenshots Gallery (Scroll Reveal) -->
+          <section
+            v-if="details.screenshots && details.screenshots.length > 0"
+            ref="screenshotsRef"
+            class="space-y-4 transition-all duration-700 ease-out transform"
+            :class="screenshotsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h2 class="text-xl font-bold font-heading text-ink">
               Tangkapan Layar
             </h2>
@@ -238,10 +308,10 @@ onMounted(async () => {
               <div
                 v-for="(shot, idx) in details.screenshots"
                 :key="idx"
-                class="rounded-lg overflow-hidden border border-border bg-surface-alt"
+                class="rounded-xl overflow-hidden border border-border/80 bg-surface-alt/70 p-2 flex flex-col items-center shadow-sm"
               >
-                <img :src="shot.url" :alt="shot.caption || 'Screenshot'" class="w-full h-auto object-cover" />
-                <p v-if="shot.caption" class="p-2.5 text-xs text-ink-muted text-center border-t border-border/40">
+                <img :src="shot.url" :alt="shot.caption || 'Screenshot'" class="w-auto max-w-full h-auto max-h-56 object-contain rounded-lg mx-auto" />
+                <p v-if="shot.caption" class="p-2 text-xs text-ink-muted text-center border-t border-border/40 mt-1.5 w-full">
                   {{ shot.caption }}
                 </p>
               </div>

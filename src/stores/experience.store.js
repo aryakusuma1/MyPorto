@@ -1,4 +1,4 @@
-﻿import { defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '../lib/supabase'
 
@@ -14,10 +14,11 @@ export const useExperienceStore = defineStore('experience', () => {
       role: 'Full Stack Web Developer',
       type: 'work',
       start_date: '2025-01-01',
-      end_date: null, // Sekarang
+      end_date: null,
       description:
         'Merancang dan membangun antarmuka web responsif, integrasi database relasional, dan implementasi REST API untuk berbagai kebutuhan klien.',
       logo_url: null,
+      photos: [],
       sort_order: 1,
     },
     {
@@ -30,12 +31,14 @@ export const useExperienceStore = defineStore('experience', () => {
       description:
         'Fokus pada rekayasa perangkat lunak, struktur data & algoritma, perancangan basis data, dan pengembangan aplikasi web & mobile.',
       logo_url: null,
+      photos: [],
       sort_order: 2,
     },
   ]
 
   /**
    * Mengambil data pengalaman kerja dan pendidikan dari Supabase
+   * Mengutamakan urutan kustom sort_order (ASC), lalu tanggal mulai terbaru (DESC)
    */
   async function fetchExperiences() {
     loading.value = true
@@ -44,6 +47,7 @@ export const useExperienceStore = defineStore('experience', () => {
       const { data, error: fetchError } = await supabase
         .from('experiences')
         .select('*')
+        .order('sort_order', { ascending: true })
         .order('start_date', { ascending: false })
 
       if (fetchError) throw fetchError
@@ -64,10 +68,28 @@ export const useExperienceStore = defineStore('experience', () => {
     }
   }
 
+  /**
+   * Memperbarui sort_order untuk urutan tampilan
+   */
+  async function updateItemOrder(id, newOrder) {
+    try {
+      const { error: updateError } = await supabase
+        .from('experiences')
+        .update({ sort_order: newOrder })
+        .eq('id', id)
+
+      if (updateError) throw updateError
+    } catch (err) {
+      console.error('[ExperienceStore] Gagal update sort_order:', err)
+      throw err
+    }
+  }
+
   return {
     experiences,
     loading,
     error,
     fetchExperiences,
+    updateItemOrder,
   }
 })

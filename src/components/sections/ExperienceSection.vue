@@ -4,6 +4,8 @@ import { Briefcase, GraduationCap, Calendar } from 'lucide-vue-next'
 import { useExperienceStore } from '../../stores/experience.store'
 import SectionTitle from '../ui/SectionTitle.vue'
 import BaseBadge from '../ui/BaseBadge.vue'
+import { ref } from 'vue'
+import { useIntersection } from '../../composables/useIntersection'
 
 const experienceStore = useExperienceStore()
 
@@ -18,8 +20,14 @@ function formatPeriod(start, end) {
   return `${formatDate(start)} - ${formatDate(end)}`
 }
 
+const timelineRef = ref(null)
+const { isVisible, observe } = useIntersection({ threshold: 0.15 })
+
 onMounted(() => {
   experienceStore.fetchExperiences()
+  if (timelineRef.value) {
+    observe(timelineRef.value)
+  }
 })
 </script>
 
@@ -34,7 +42,7 @@ onMounted(() => {
       />
 
       <!-- Timeline Container (max-w-4xl agar lebar kartu proporsional dan nyaman dibaca) -->
-      <div class="max-w-4xl mx-auto mt-10">
+      <div ref="timelineRef" class="max-w-4xl mx-auto mt-10 transition-all duration-700 ease-out transform" :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
         <div
           v-for="(item, index) in experienceStore.experiences"
           :key="item.id"

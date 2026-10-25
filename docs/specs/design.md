@@ -313,3 +313,76 @@ WHEN Visitor mengakses `/admin` atau rute admin manapun tanpa sesi aktif,
 THE App SHALL redirect ke `/admin/login`.
 
 WHEN Admin berhasil login, THE App SHALL redirect ke `/admin/dashboard`.
+
+### 7.4 Interactive 3D Coverflow Showcase Carousel (Projects & Certificates)
+- **Konsep Arsitektur**:
+  - Menggantikan grid multi-baris statis dengan Coverflow Showcase Slider 3D horizontal interaktif.
+  - State aktif dilacak via `activeIndex` (0 s/d `items.length - 1`).
+  - Posisi relatif setiap item dihitung menggunakan offset: `offset = index - activeIndex`.
+  - Transformasi 3D dinamis:
+    - `offset === 0` (Active Center): `scale(1.05)`, `translateZ(0)`, `opacity: 1`, border accent glow `box-shadow: 0 10px 30px rgba(255,107,0,0.2)`.
+    - `offset === -1` (Left Adjacent): `translateX(-70%) scale(0.85) rotateY(15deg)`, `opacity: 0.65`.
+    - `offset === 1` (Right Adjacent): `translateX(70%) scale(0.85) rotateY(-15deg)`, `opacity: 0.65`.
+    - `Math.abs(offset) >= 2`: `opacity: 0`, `pointer-events: none` (atau disembunyikan di luar viewport panggung).
+- **Interaksi**:
+  - Tombol ◀ dan ▶ untuk navigasi step per step dengan wrap-around atau batas ujung.
+  - Klik pada kartu kiri/kanan memanggil `setActiveIndex(targetIndex)`.
+  - Touch event listeners (`touchstart`, `touchmove`, `touchend`) untuk swipe horizontal di layar sentuh mobile/tablet.
+  - Kotak informasi aktif di bawah stage menampilkan detail item, deskripsi, badges, dan direct action button.
+
+### 7.5 Kontak 2-Kolom & Dual-Delivery Messaging Architecture
+- **Konsep Tata Letak**:
+  - Mengadopsi struktur grid 2-kolom (`grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start`).
+  - **Kolom Kiri (`lg:col-span-5`) — List Kontak Langsung**:
+    - Menampilkan kartu-kartu tautan kontak tanpa nomor urut: Email, GitHub, LinkedIn, dan Instagram.
+    - Menggunakan ikon resmi Lucide (`Mail`, `Github`, `Linkedin`, `Instagram`).
+    - Kartu dilengkapi efek interaktif border glow dan panah eksternal `ArrowUpRight`.
+    - **Kolom Kanan (`lg:col-span-7`) — Formulir Kirim Pesan Interaktif & Balanced Sizing**:
+    - Kontainer kartu `bg-surface-alt/90 border border-border/80 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl h-full flex flex-col justify-between`.
+    - Tata letak masukan yang seimbang (*equal-height symmetry*): Kolom kiri (header + 4 kartu kontak) dan kolom kanan (kartu formulir pesan) memiliki tinggi total yang sejajar dan seragam (*items-stretch*).
+    - Grid 2-kolom masukan identitas (`grid grid-cols-1 sm:grid-cols-2 gap-3`) untuk "Nama Anda" dan "Alamat Email", menghemat ruang vertikal secara elegan.
+    - Textarea pesan dibuat kompak (`rows="3"` dengan `min-h-[90px]`) dan tombol aksi yang proporsional (`py-2.5 sm:py-3`), mencegah kartu membengkak atau melorot ke bawah.
+- **Arsitektur Pengiriman Pesan Ganda (*Dual-Delivery*)**:
+  - `Submit Handler` mengeksekusi dua alur secara paralel atau sekuensial:
+    1. **Notifikasi Email Instan**: Mengirim payload JSON ke gateway email (FormSubmit AJAX) ke email pemilik portofolio, sehingga notifikasi langsung masuk ke ponsel pemilik.
+    2. **Arsip Basis Data**: Memasukkan rekaman baru ke tabel `public.contact_messages` di Supabase untuk riwayat pesan di dashboard admin (`MessagesView.vue`).
+  - Penanganan state reaktif: `isSubmitting` (disable button + spinner), `isSuccess` (alert hijau), `errorMessage` (alert merah).
+
+### 7.6 Refaktor CRUD Skill (List Layout) & Standarisasi Modal Admin
+- **Modal Konsistensi Admin (`MessagesView.vue`)**:
+  - Modal pesan masuk menggunakan token warna baku `bg-surface-alt`, `bg-surface-raised`, dan `bg-black/80 backdrop-blur-sm` sehingga tidak lagi tembus pandang (*translucent/bening*).
+- **CRUD Skill List Layout (`SkillsView.vue`)**:
+  - Mengubah tampilan grid 3-kolom menjadi tabel baris (*row list*) yang ramping dan padat.
+  - Setiap baris memuat tombol navigasi urutan naik/turun (`↑`, `↓`), nomor urut `#N`, ikon inisial, nama skill, kategori badge, progress bar kemahiran, dan tombol aksi edit/hapus.
+- **Logika Pengurutan Global Skill**:
+  - Menghapus pembatasan urutan "dalam kategori yang sama", menjadikan `sort_order` bersifat sekuensial dan global (1..N) di seluruh data keahlian.
+  - `skill.store.js` dan `SkillsSection.vue` menyortir item berdasarkan `sort_order` ascending sehingga posisi di halaman utama selaras langsung dengan urutan di admin.
+
+### 7.7 Otomatisasi Urutan Akhir (*Auto-Append*) & Penghapusan Input Manual Urutan
+- **Penghapusan Masukan Manual**:
+  - Seluruh field input manual "Urutan Tampilan (Sort Order)" dihilangkan dari seluruh modal form (`SkillForm`, `ExperienceForm`, `CertificateForm`). Pengguna tidak lagi perlu mengetik angka urutan secara manual.
+- **Logika Auto-Append pada Data Baru**:
+  - Ketika data baru ditambahkan (create mode), sistem otomatis memeriksa nilai `sort_order` tertinggi yang ada di database untuk kategori/tabel terkait dan menetapkan `MAX(sort_order) + 1`.
+  - Jika daftar sebelumnya berisi item #1, #2, #3, #4, maka penambahan data baru otomatis menjadi item #5 di posisi paling akhir.
+- **Konsistensi Edit & Reordering**:
+  - Saat mengubah (*edit*) data, nilai `sort_order` lama tetap dipertahankan sehingga posisinya tidak bergeser.
+  - Penyesuaian urutan posisi sepenuhnya dikontrol melalui tombol interaktif Naik (`↑`) dan Turun (`↓`) pada daftar list view admin yang langsung memperbarui nomor urut secara sekuensial.
+
+### 7.8 Preservasi Format Multiline & Poin-Poin Deskripsi
+- **Preservasi Spasi & Baris Baru (`whitespace-pre-line`)**:
+  - Pada komponen `JourneySection.vue` (Pendidikan & Pengalaman), teks deskripsi kini dirender dengan kelas `whitespace-pre-line`.
+  - Karakter baris baru (`\n`), pemisah paragraf (jarak enter), dan pemformatan poin-poin (bullet points seperti `- ` atau nomor `1. `) yang diketik admin dipertahankan dan ditampilkan secara presisi di antarmuka pengunjung, tanpa mengorbankan sifat responsif *line-wrapping*.
+
+### 7.9 Grid Keahlian 6-Kolom Kompak (*Compact Squircle Grid*)
+- **Penyesuaian Kolom Grid (`lg:grid-cols-6`)**:
+  - Tab keahlian pada `JourneySection.vue` mengadopsi tata letak responsif 6-kolom (`grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6`) dengan lebar maksimum `max-w-6xl` dan jarak celah `gap-3 sm:gap-4`.
+- **Perampingan Ukuran Kartu**:
+  - Ukuran kartu diperkecil dengan padding padat `p-3.5 sm:p-4` dan radius sudut `rounded-2xl`.
+  - Kontainer ikon teknologi diskalakan menjadi `w-11 h-11 sm:w-12 sm:h-12` dengan teks nama skill `text-xs sm:text-sm` serta badge kategori `text-[10px]`, menghasilkan tampilan kisi keahlian yang proporsional, padat, dan elegan.
+
+### 7.10 Upload Ikon Keahlian Langsung & Fallback Ikon Bawaan
+- **Integrasi Upload Berkas (`SkillForm.vue`)**:
+  - Menggantikan input teks link URL manual dengan tombol upload berkas gambar langsung (`image/svg+xml`, `image/png`, `image/webp`). Berkas diunggah langsung ke Supabase Storage pada path `portfolio-images/skills/`.
+- **Preservasi Ikon Bawaan (*Graceful Fallback*)**:
+  - Jika pengguna tidak mengunggah gambar kustom, sistem tetap mempertahankan ikon SVG bawaan resmi yang terdaftar pada `TechIcon.vue` berdasarkan nama skill.
+  - Komponen form menyediakan kotak pratinjau langsung yang mengindikasikan apakah ikon bawaan aktif atau ikon kustom sedang terpasang.

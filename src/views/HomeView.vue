@@ -1,10 +1,9 @@
-﻿<script setup>
+<script setup>
 import AppNavbar from '../components/layout/AppNavbar.vue'
 import HeroSection from '../components/sections/HeroSection.vue'
 import AboutSection from '../components/sections/AboutSection.vue'
-import SkillsSection from '../components/sections/SkillsSection.vue'
+import JourneySection from '../components/sections/JourneySection.vue'
 import ProjectsSection from '../components/sections/ProjectsSection.vue'
-import ExperienceSection from '../components/sections/ExperienceSection.vue'
 import CertificatesSection from '../components/sections/CertificatesSection.vue'
 import ContactSection from '../components/sections/ContactSection.vue'
 </script>
@@ -18,9 +17,8 @@ import ContactSection from '../components/sections/ContactSection.vue'
     <main class="flex-1">
       <HeroSection />
       <AboutSection />
-      <SkillsSection />
+      <JourneySection />
       <ProjectsSection />
-      <ExperienceSection />
       <CertificatesSection />
       <ContactSection />
     </main>

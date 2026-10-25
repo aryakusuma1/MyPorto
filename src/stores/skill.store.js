@@ -34,8 +34,7 @@ export const useSkillStore = defineStore('skill', () => {
       const { data, error: fetchError } = await supabase
         .from('skills')
         .select('*')
-        .order('category')
-        .order('sort_order')
+        .order('sort_order', { ascending: true })
 
       if (fetchError) throw fetchError
 

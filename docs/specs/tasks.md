@@ -1,4 +1,4 @@
-﻿# Implementation Plan: Web Portfolio Personal
+# Implementation Plan: Web Portfolio Personal
 
 ## Gambaran Umum
 
@@ -244,14 +244,102 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
   - [x] 7.8 Buat halaman pesan masuk (`MessagesView.vue`)
     - Daftar semua pesan dengan status baca/belum
     - Klik pesan untuk melihat detail dan menandai sudah dibaca
-    - _Requirements: 12.5, 12.6_
+    - _Requirements: 12.7, 12.8_
 
-- [ ] 8. Checkpoint akhir — Polish & Deploy
-  - Periksa tampilan responsif di mobile, tablet, desktop
-  - Periksa konsistensi warna, spacing, dan tipografi
-  - Pastikan semua navigation guard admin bekerja
-  - Pastikan dark/light mode toggle bekerja
-  - Deploy ke Vercel dengan environment variables yang benar
+  - [x] 7.9 Buat migrasi database Supabase untuk kolom `about_photo_url` pada tabel `profiles` dan `photos TEXT[]` pada tabel `experiences`
+    - _Requirements: 3.1, 7.7, 12.2, 12.3_
+
+  - [x] 7.10 Buat komponen Multi-Image Uploader (maksimal 4 foto mini) dan integrasikan pada `ExperienceForm.vue`
+    - Pratinjau thumbnail 1 s/d 4 foto, upload ke folder `experiences/`, dan tombol hapus individual per foto
+    - _Requirements: 7.7, 12.3_
+
+  - [x] 7.11 Buat halaman Admin Profil (`ProfileView.vue`) untuk kelola biodata, foto Hero (`photo_url`), foto Tentang Saya (`about_photo_url`), dan CV PDF (`cv_url`)
+    - Tambahkan rute `/admin/profile` dan menu navigasi pada `AdminSidebar.vue`
+    - _Requirements: 3.1, 12.1, 12.2_
+
+  - [x] 7.12 Buat komponen ImageCropperModal.vue dan integrasikan pada ImageUploader.vue dan MultiImageUploader.vue
+    - Modal interaktif dengan pan/drag posisi foto, zoom slider, preset rasio aspek (16:9, 4:3, 3:4, 1:1, Free), dan canvas export
+    - Berfungsi universal di semua upload foto admin: Profil (Hero & About), Projects (Cover & Screenshot), Certificates, dan Experience (Pendidikan & Pekerjaan)
+    - _Requirements: 12.4, 12.9_
+
+  - [x] 7.13 Perbaiki styling modal SkillForm.vue dan card SkillsView.vue agar berlatar belakang solid (`bg-surface-alt`) konsisten dengan CRUD lainnya
+    - _Requirements: 12.4_
+
+  - [x] 7.14 Tambahkan tombol penataan urutan foto (Geser Kiri ◀ / Geser Kanan ▶) pada MultiImageUploader.vue
+    - Memungkinkan admin menukar urutan foto #1, #2, #3, #4 secara instan tanpa perlu hapus dan upload ulang
+    - _Requirements: 12.3_
+
+  - [x] 7.15 Terapkan pengurutan `sort_order` pada Pengalaman & Pendidikan dengan tombol Naikkan (▲) dan Turunkan (▼) di Admin
+    - Urutkan entri di frontend & store berdasarkan `sort_order ASC, start_date DESC` agar entri yang ingin di atas tidak tergantung tanggal
+    - _Requirements: 12.5_
+
+  - [x] 7.16 Pisahkan CRUD Pengalaman Kerja (`ExperienceView.vue`) dan Pendidikan Formal (`EducationView.vue`) di Admin Panel
+    - Tambahkan rute `/admin/education` dan navigasi menu terpisah di `AdminSidebar.vue`
+    - _Requirements: 12.1_
+
+  - [x] 7.17 Susun ulang urutan navigasi `AdminSidebar.vue`: Dashboard -> Profil -> Pendidikan -> Pengalaman -> Skills -> Projects -> Certificates -> Pesan Masuk
+    - _Requirements: 12.1_
+
+  - [x] 7.18 Hapus toggle kategori manual pada `ExperienceForm.vue` dan jadikan judul/label/placeholder otomatis menyesuaikan konteks (`education` vs `work`)
+    - _Requirements: 12.3_
+
+  - [x] 7.19 Terapkan kontrol penataan urutan posisi (Naikkan ▲ / Turunkan ▼) dan `sort_order` pada CRUD Admin Skills (`SkillsView.vue`), Projects (`ProjectsView.vue`, `ProjectForm.vue`), dan Certificates (`CertificatesView.vue`)
+    - _Requirements: 12.5_
+
+- [ ] 8. Checkpoint akhir - Polish & Deploy
+  - [x] 8.1 Reset scroll ke Hero saat refresh (manual scroll restoration & router reset)
+  - [x] 8.2 Terapkan Staggered Entrance Animation & Scale-in Glow pada Hero Section
+  - [x] 8.3 Terapkan Page Entrance & Scroll Reveal Animation pada Halaman Detail (Projects & Certificates)
+  - [x] 8.4 Tambahkan foto potret terpisah pada Section About (about_photo_url & layout 2 kolom visual)
+  - [x] 8.5 Restrukturisasi Section Journey dengan Tab Switcher (Tab 1: Pendidikan, Tab 2: Pengalaman, Tab 3: Keahlian)
+  - [x] 8.6 Perbaiki posisi vertikal foto agar benar-benar berada di tengah kartu (flex-1 flex items-center tanpa konflik space-y) dengan badge kalender tetap terkunci di baris paling atas sejajar judul
+  - [x] 8.7 Terapkan modern squircle icon grid dengan subtle glow pada tab Keahlian Teknis
+  - [x] 8.8 Perbarui tautan navigasi navbar utama untuk merujuk ke Section Journey
+  - [x] 8.13 Bangun Interactive 3D Coverflow Showcase Carousel pada `ProjectsSection.vue` (slider horizontal, active center card, detail view di bawah, tombol navigasi ◀ ▶, dots, dan touch swipe)
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+  - [x] 8.14 Bangun Interactive 3D Coverflow Showcase Carousel pada `CertificatesSection.vue` (slider horizontal, active center card, detail view di bawah, tombol navigasi ◀ ▶, dots, dan touch swipe)
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+  - [x] 8.15 Optimasi Spacing & Flat Stack Showcase Gallery (ProjectsSection.vue dan CertificatesSection.vue): rapatkan jarak vertikal dari judul section, pindahkan pagination dots tepat di bawah gambar, dan limit deskripsi line-clamp-2
+    - _Requirements: 5.1, 8.1_
+  - [x] 8.16 Bangun Kontak Section 2-Kolom & Dual-Delivery Messaging (`ContactSection.vue`): List kontak (Email, GitHub, LinkedIn, Instagram) di kolom kiri, Formulir kirim pesan interaktif di kolom kanan, integrasi pengiriman email instan + arsip Supabase `contact_messages`, dan field Instagram di `ProfileView.vue`
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9_
+
+  - [x] 8.17 Optimasi & Penyelarasan Ketinggian Kartu Formulir Kontak (`ContactSection.vue`): Sejajarkan tinggi kartu formulir pesan dengan list kontak dan tulisan pengantar di kolom kiri (*equal-height symmetry*), terapkan grid 2-kolom untuk input nama & email, kurangi padding berlebih, dan rampingkan textarea agar tertata rapi
+    - _Requirements: 10.1, 10.2, 10.9_
+
+  - [x] 8.18 Refaktor CRUD Skill ke List Layout, Standarisasi Modal Pesan Masuk, dan Global Sort Order (`SkillsView.vue`, `SkillForm.vue`, `MessagesView.vue`, `skill.store.js`):
+    - Ubah kartu modal pesan masuk admin dari transparan/bening menjadi solid konsisten (`bg-surface-alt`, `bg-black/80 backdrop-blur-sm`).
+    - Ubah tampilan CRUD Skill dari kartu 3-kolom menjadi tabel list baris yang kompak dan mudah diatur urutannya.
+    - Perbaiki logika pengurutan skill: inisialisasi nomor urut sekuensial global (1..N) di database, terapkan sorting berdasarkan `sort_order` di store dan frontend, serta hapus batasan scoped helper text "dalam kategori yang sama".
+    - _Requirements: 8.1, 8.4, 10.9_
+
+  - [x] 8.19 Otomatisasi Posisi Akhir Item Baru & Penghapusan Input Manual Urutan (`SkillForm.vue`, `ExperienceForm.vue`, `CertificateForm.vue`, `ProjectForm.vue`):
+    - Hapus seluruh input field manual "Urutan Tampilan / Sort Order" dari semua modal form CRUD (Keahlian, Pendidikan, Pengalaman, Sertifikasi).
+    - Terapkan logika auto-append (`MAX(sort_order) + 1`): Setiap penambahan data baru otomatis ditempatkan di posisi paling akhir daftar (misal ada 1..4 maka data baru menjadi ke-5).
+    - Pertahankan nomor urut yang sudah ada saat edit data agar posisi tidak terganggu.
+    - _Requirements: 8.1, 8.4, 10.9_
+
+  - [x] 8.20 Preservasi Format Teks Multiline, Paragraf, dan Poin-Poin Riwayat (`JourneySection.vue`, `AboutSection.vue`):
+    - Terapkan kelas utilitas `whitespace-pre-line` pada seluruh elemen peraga deskripsi riwayat Pendidikan dan Pengalaman (baik layout desktop zigzag maupun mobile).
+    - Memastikan setiap enter/baris baru, jarak antar paragraf, dan daftar poin-poin yang diketik di CRUD admin tampil persis sesuai format aslinya pada halaman portofolio pengunjung.
+    - _Requirements: 6.1, 6.2, 6.3, 10.9_
+
+  - [x] 8.21 Refaktor Grid Keahlian Menjadi 6 Kolom Kompak (`JourneySection.vue`):
+    - Ubah tata letak kartu keahlian teknis dari 5 kolom menjadi 6 kolom per baris (`lg:grid-cols-6`) dengan kontainer `max-w-6xl`.
+    - Perkecil ukuran kartu keahlian (*compact squircle*): kurangi padding (`p-3.5 sm:p-4`), perkecil ukuran ikon teknologi (`w-11 h-11 sm:w-12 sm:h-12`), dan rapatkan jarak antar kartu (`gap-3 sm:gap-4`) agar tampil proporsional, rapi, dan padat.
+    - _Requirements: 7.1, 7.2, 10.9_
+
+  - [x] 8.22 Fitur Upload Ikon Keahlian Langsung & Preservasi Ikon Bawaan Otomatis (`SkillForm.vue`, `TechIcon.vue`, `JourneySection.vue`, `SkillsView.vue`):
+    - Ganti input teks/link manual pada form Keahlian dengan area upload file langsung (`SVG`, `PNG`, `WebP`) yang terintegrasi ke Supabase Storage (`portfolio-images/skills/`).
+    - Pertahankan fitur fallback otomatis: jika form dikosongkan (tidak mengunggah ikon), sistem secara otomatis menggunakan ikon SVG resmi bawaan sesuai nama keahlian (Vue, React, PHP, Laravel, Tailwind, MySQL, PostgreSQL, dll.).
+    - Tampilkan live preview ikon bawaan di form ketika belum mengunggah, serta opsi ganti atau hapus ikon custom kapan saja.
+    - _Requirements: 7.1, 7.2, 10.9_
+
+  - [x] 8.9 Periksa tampilan responsif di mobile, tablet, desktop
+  - [x] 8.10 Periksa konsistensi warna, spacing, dan tipografi
+  - [x] 8.11 Pastikan semua navigation guard admin bekerja
+  - [ ] 8.12 Deploy ke Vercel dengan environment variables yang benar (setelah user menyetujui)
   - _Requirements: semua_
 
 ---
