@@ -161,6 +161,39 @@ async function handleSubmit() {
   }
 }
 
+const copiedEmail = ref(false)
+
+function handleContactClick(item, event) {
+  if (item.name.toLowerCase().includes('email')) {
+    event.preventDefault()
+    const email = item.value
+
+    // Otomatis salin email ke clipboard untuk kenyamanan pengguna
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(email).then(() => {
+        copiedEmail.value = true
+        setTimeout(() => {
+          copiedEmail.value = false
+        }, 2500)
+      }).catch(() => {})
+    }
+
+    // Deteksi perangkat cerdas:
+    // - Jika di HP (Android / iOS): Panggil mailto: agar aplikasi Gmail / Mail bawaan HP langsung terbuka
+    // - Jika di Laptop / PC: Buka Gmail Web Compose langsung di tab baru (bebas popup Windows)
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+    if (isMobile) {
+      window.location.href = `mailto:${email}`
+    } else {
+      window.open(
+        `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`,
+        '_blank',
+        'noopener,noreferrer'
+      )
+    }
+  }
+}
+
 onMounted(() => {
   if (contentRef.value) {
     observe(contentRef.value)
@@ -187,17 +220,17 @@ onMounted(() => {
       <!-- Main 2-Column Responsive Layout -->
       <div
         ref="contentRef"
-        class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start max-w-5xl mx-auto mb-16 transition-all duration-700 ease-out transform"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch max-w-5xl mx-auto mb-16 transition-all duration-700 ease-out transform"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
       >
         <!-- Kolom Kiri: List Kartu Kontak & Media Sosial (lg:col-span-5) -->
-        <div class="lg:col-span-5 space-y-4">
-          <div class="mb-5">
-            <h3 class="font-heading font-bold text-xl text-ink flex items-center gap-2">
+        <div class="lg:col-span-5 flex flex-col justify-between">
+          <div class="mb-4 sm:mb-5">
+            <h3 class="font-heading font-bold text-xl text-ink flex items-center gap-2 mb-1">
               <Sparkles class="w-4 h-4 text-accent" />
               <span>Hubungi Kontak saya</span>
             </h3>
-            <p class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
+            <p class="text-xs sm:text-sm text-ink-muted leading-relaxed">
               Pilih kanal komunikasi favorit Anda untuk berinteraksi langsung atau meninjau karya saya.
             </p>
           </div>
@@ -210,23 +243,30 @@ onMounted(() => {
               :href="item.url"
               :target="item.isExternal ? '_blank' : '_self'"
               :rel="item.isExternal ? 'noopener noreferrer' : ''"
-              class="block group"
+              class="block group cursor-pointer"
+              @click="handleContactClick(item, $event)"
             >
               <div
-                class="rounded-2xl border border-border/80 bg-surface-alt/80 hover:bg-surface-raised hover:border-accent/60 p-4 transition-all duration-300 shadow-sm flex items-center justify-between group-hover:shadow-[0_0_20px_rgba(255,107,0,0.1)] group-hover:-translate-y-0.5"
+                class="rounded-2xl border border-border/80 bg-surface-alt/80 hover:bg-surface-raised hover:border-accent/60 p-3.5 sm:p-4 transition-all duration-300 shadow-sm flex items-center justify-between group-hover:shadow-[0_0_20px_rgba(255,107,0,0.1)] group-hover:-translate-y-0.5"
               >
                 <div class="flex items-center gap-3.5 min-w-0 pr-2">
                   <!-- Brand Icon Container -->
                   <div
-                    class="w-11 h-11 rounded-xl bg-surface-raised border border-border/80 flex items-center justify-center text-accent shrink-0 group-hover:scale-105 group-hover:bg-accent group-hover:text-white transition-all duration-300 shadow-sm"
+                    class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-surface-raised border border-border/80 flex items-center justify-center text-accent shrink-0 group-hover:scale-105 group-hover:bg-accent group-hover:text-white transition-all duration-300 shadow-sm"
                   >
                     <component :is="item.icon" class="w-5 h-5" />
                   </div>
 
                   <!-- Text Details -->
                   <div class="min-w-0">
-                    <span class="text-[11px] font-mono text-ink-muted block uppercase tracking-wider">
-                      {{ item.name }}
+                    <span class="text-[11px] font-mono text-ink-muted block uppercase tracking-wider flex items-center gap-2">
+                      <span>{{ item.name }}</span>
+                      <span
+                        v-if="item.name.toLowerCase().includes('email') && copiedEmail"
+                        class="text-[10px] text-green-400 font-sans font-medium px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/30 animate-fade-in"
+                      >
+                        Email Disalin!
+                      </span>
                     </span>
                     <span class="text-sm font-semibold text-ink group-hover:text-accent transition-colors truncate block mt-0.5">
                       {{ item.value }}
@@ -244,80 +284,83 @@ onMounted(() => {
         </div>
 
         <!-- Kolom Kanan: Card Form Kirim Pesan (lg:col-span-7) -->
-        <div class="lg:col-span-7">
+        <div class="lg:col-span-7 flex flex-col">
           <div
-            class="rounded-3xl border border-border/80 bg-surface-alt/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+            class="rounded-3xl border border-border/80 bg-surface-alt/90 backdrop-blur-xl p-5 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between h-full"
           >
             <!-- Header Form -->
-            <div class="mb-6">
-              <span class="text-xs font-mono font-medium text-accent uppercase tracking-wider block mb-1">
+            <div class="mb-3.5">
+              <span class="text-[11px] font-mono font-medium text-accent uppercase tracking-wider block mb-0.5">
                 Kirim Pesan Langsung
               </span>
-              <h3 class="font-heading font-bold text-xl sm:text-2xl text-ink">
+              <h3 class="font-heading font-bold text-lg sm:text-xl text-ink">
                 Ada proyek atau kerja sama?
               </h3>
-              <p class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
+              <p class="text-xs text-ink-muted mt-0.5 leading-relaxed">
                 Tinggalkan pesan di bawah ini. Notifikasi akan diteruskan langsung ke email saya.
               </p>
             </div>
 
             <!-- Formulir Kontak -->
-            <form @submit.prevent="handleSubmit" class="space-y-4">
-              <!-- Field Nama -->
-              <div>
-                <label class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
-                  Nama Anda
-                </label>
-                <div
-                  class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-center shadow-inner"
-                >
-                  <User class="w-4 h-4 text-ink-muted ml-3.5 shrink-0" />
-                  <input
-                    v-model="form.name"
-                    type="text"
-                    required
-                    placeholder="Masukkan nama lengkap Anda"
-                    class="w-full bg-transparent px-3 py-3 text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none"
-                    :disabled="isSubmitting"
-                  />
+            <form @submit.prevent="handleSubmit" class="space-y-3 flex-1 flex flex-col justify-between">
+              <!-- Grid 2-Kolom untuk Nama & Email -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Field Nama -->
+                <div>
+                  <label class="block text-[11px] font-semibold text-ink uppercase tracking-wider mb-1">
+                    Nama Anda
+                  </label>
+                  <div
+                    class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-center shadow-inner"
+                  >
+                    <User class="w-4 h-4 text-ink-muted ml-3 shrink-0" />
+                    <input
+                      v-model="form.name"
+                      type="text"
+                      required
+                      placeholder="Nama lengkap Anda"
+                      class="w-full bg-transparent px-2.5 py-2.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none"
+                      :disabled="isSubmitting"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <!-- Field Email -->
-              <div>
-                <label class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
-                  Alamat Email Anda
-                </label>
-                <div
-                  class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-center shadow-inner"
-                >
-                  <Mail class="w-4 h-4 text-ink-muted ml-3.5 shrink-0" />
-                  <input
-                    v-model="form.email"
-                    type="email"
-                    required
-                    placeholder="nama@email.com"
-                    class="w-full bg-transparent px-3 py-3 text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none"
-                    :disabled="isSubmitting"
-                  />
+                <!-- Field Email -->
+                <div>
+                  <label class="block text-[11px] font-semibold text-ink uppercase tracking-wider mb-1">
+                    Alamat Email
+                  </label>
+                  <div
+                    class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-center shadow-inner"
+                  >
+                    <Mail class="w-4 h-4 text-ink-muted ml-3 shrink-0" />
+                    <input
+                      v-model="form.email"
+                      type="email"
+                      required
+                      placeholder="nama@email.com"
+                      class="w-full bg-transparent px-2.5 py-2.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none"
+                      :disabled="isSubmitting"
+                    />
+                  </div>
                 </div>
               </div>
 
               <!-- Field Pesan -->
-              <div>
-                <label class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
+              <div class="flex-1 flex flex-col">
+                <label class="block text-[11px] font-semibold text-ink uppercase tracking-wider mb-1">
                   Isi Pesan
                 </label>
                 <div
-                  class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-start pt-3 shadow-inner"
+                  class="rounded-xl border border-border bg-surface-raised/80 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all flex items-start pt-2.5 shadow-inner flex-1 min-h-[90px]"
                 >
-                  <MessageSquare class="w-4 h-4 text-ink-muted ml-3.5 mt-0.5 shrink-0" />
+                  <MessageSquare class="w-4 h-4 text-ink-muted ml-3 mt-0.5 shrink-0" />
                   <textarea
                     v-model="form.message"
-                    rows="4"
+                    rows="3"
                     required
                     placeholder="Ceritakan tentang proyek, ide kolaborasi, atau pertanyaan yang ingin Anda sampaikan..."
-                    class="w-full bg-transparent px-3 pb-3 text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none resize-none leading-relaxed"
+                    class="w-full h-full bg-transparent px-2.5 pb-2 text-xs sm:text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none resize-none leading-relaxed"
                     :disabled="isSubmitting"
                   ></textarea>
                 </div>
@@ -326,29 +369,29 @@ onMounted(() => {
               <!-- Success Alert Banner -->
               <div
                 v-if="successMessage"
-                class="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-xs sm:text-sm flex items-start gap-2.5"
+                class="p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-xs flex items-start gap-2"
               >
-                <CheckCircle2 class="w-5 h-5 shrink-0 text-green-400 mt-0.5" />
+                <CheckCircle2 class="w-4 h-4 shrink-0 text-green-400 mt-0.5" />
                 <span class="leading-relaxed">{{ successMessage }}</span>
               </div>
 
               <!-- Error Alert Banner -->
               <div
                 v-if="errorMessage"
-                class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm flex items-start gap-2.5"
+                class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-start gap-2"
               >
-                <AlertCircle class="w-5 h-5 shrink-0 text-red-400 mt-0.5" />
+                <AlertCircle class="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
                 <span class="leading-relaxed">{{ errorMessage }}</span>
               </div>
 
               <!-- Tombol Kirim -->
-              <div class="pt-2">
+              <div class="pt-1">
                 <BaseButton
                   type="submit"
                   variant="primary"
-                  size="lg"
+                  size="md"
                   :disabled="isSubmitting"
-                  class="w-full justify-center shadow-lg hover:shadow-accent/25 transition-all font-semibold py-3.5 cursor-pointer"
+                  class="w-full justify-center shadow-lg hover:shadow-accent/25 transition-all font-semibold py-2.5 sm:py-3 cursor-pointer text-sm"
                 >
                   <Loader2 v-if="isSubmitting" class="w-4 h-4 mr-2 animate-spin" />
                   <Send v-else class="w-4 h-4 mr-2" />

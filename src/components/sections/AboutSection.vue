@@ -158,7 +158,7 @@ onMounted(() => {
           </div>
           <div v-else class="space-y-4">
             <!-- Paragraf 1: Latar Belakang & Bio -->
-            <p class="text-ink text-base sm:text-lg leading-relaxed font-normal">
+            <p class="text-ink text-base sm:text-lg leading-relaxed font-normal whitespace-pre-line">
               {{ bioText }}
             </p>
 

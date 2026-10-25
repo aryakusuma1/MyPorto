@@ -204,7 +204,7 @@ onMounted(() => {
                             {{ item.role }}
                           </h3>
                         </div>
-                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                           {{ item.description }}
                         </p>
                       </div>
@@ -318,7 +318,7 @@ onMounted(() => {
                             {{ item.role }}
                           </h3>
                         </div>
-                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                           {{ item.description }}
                         </p>
                       </div>
@@ -341,7 +341,7 @@ onMounted(() => {
                         <span>{{ formatPeriod(item.start_date, item.end_date) }}</span>
                       </div>
                     </div>
-                    <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                    <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                       {{ item.description }}
                     </p>
                   </div>
@@ -392,7 +392,7 @@ onMounted(() => {
                             {{ item.role }}
                           </h3>
                         </div>
-                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                           {{ item.description }}
                         </p>
                       </div>
@@ -506,7 +506,7 @@ onMounted(() => {
                             {{ item.role }}
                           </h3>
                         </div>
-                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                        <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                           {{ item.description }}
                         </p>
                       </div>
@@ -529,7 +529,7 @@ onMounted(() => {
                         <span>{{ formatPeriod(item.start_date, item.end_date) }}</span>
                       </div>
                     </div>
-                    <p class="text-ink-muted text-sm sm:text-base leading-relaxed">
+                    <p class="text-ink-muted text-sm sm:text-base leading-relaxed whitespace-pre-line">
                       {{ item.description }}
                     </p>
                   </div>
@@ -538,29 +538,29 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- TAB 3: KEAHLIAN TEKNIS (MODERN SQUIRCLE GRID) -->
+          <!-- TAB 3: KEAHLIAN TEKNIS (MODERN SQUIRCLE GRID - 6 BARIS / KOLOM KOMPAK) -->
           <div v-else-if="activeTab === 'skills'" key="skills" class="w-full">
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 max-w-5xl mx-auto">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto">
               <div
                 v-for="(skill, sIdx) in displaySkills"
                 :key="skill.name"
-                class="relative group rounded-3xl p-5 sm:p-6 bg-surface-alt/70 border border-border/80 hover:border-accent/60 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3.5 shadow-md hover:shadow-[0_0_25px_rgba(255,107,0,0.14)] hover:-translate-y-1 skill-card-reveal"
-                :style="{ animationDelay: `${sIdx * 40}ms` }"
+                class="relative group rounded-2xl p-3.5 sm:p-4 bg-surface-alt/70 border border-border/80 hover:border-accent/60 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2.5 shadow-sm hover:shadow-[0_0_20px_rgba(255,107,0,0.12)] hover:-translate-y-1 skill-card-reveal"
+                :style="{ animationDelay: `${sIdx * 35}ms` }"
               >
                 <!-- Icon Container -->
                 <div
-                  class="w-14 h-14 rounded-2xl bg-surface-raised/80 border border-border flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform duration-300"
+                  class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-surface-raised/80 border border-border flex items-center justify-center p-2 group-hover:scale-110 transition-transform duration-300 shrink-0"
                 >
-                  <TechIcon :name="skill.name" class="w-full h-full" />
+                  <TechIcon :name="skill.name" :icon-url="skill.icon_url" class="w-full h-full" />
                 </div>
 
                 <!-- Tech Name -->
-                <span class="font-heading font-semibold text-sm sm:text-base text-ink group-hover:text-accent transition-colors">
+                <span class="font-heading font-semibold text-xs sm:text-sm text-ink group-hover:text-accent transition-colors truncate max-w-full px-1">
                   {{ skill.name }}
                 </span>
 
                 <!-- Category or Level indicator -->
-                <span class="text-[11px] text-ink-muted/80 px-2.5 py-0.5 rounded-full bg-surface-raised border border-border/40 font-mono">
+                <span class="text-[10px] text-ink-muted/80 px-2 py-0.5 rounded-full bg-surface-raised border border-border/40 font-mono truncate max-w-full">
                   {{ skill.category || (skill.level ? `${skill.level}%` : 'Skill') }}
                 </span>
               </div>

@@ -31,8 +31,7 @@ const form = reactive({
   description: '',
   logo_url: '',
   photos: [],
-  sort_order: 0,
-})
+  })
 
 const isEducation = computed(() => form.type === 'education')
 
@@ -47,8 +46,7 @@ watch(
       form.end_date = val.end_date || ''
       form.description = val.description || ''
       form.logo_url = val.logo_url || ''
-      form.sort_order = val.sort_order ?? 0
-      isCurrent.value = !val.end_date
+            isCurrent.value = !val.end_date
 
       // Parsing foto array dengan fallback aman
       if (Array.isArray(val.photos) && val.photos.length > 0) {
@@ -73,8 +71,7 @@ watch(
       form.description = ''
       form.logo_url = ''
       form.photos = []
-      form.sort_order = 0
-      isCurrent.value = false
+            isCurrent.value = false
     }
   },
   { immediate: true }
@@ -104,7 +101,28 @@ async function handleSubmit() {
     description: form.description.trim() || null,
     logo_url: form.photos.length > 0 ? form.photos[0] : null,
     photos: form.photos,
-    sort_order: Number(form.sort_order) || 0,
+    sort_order: (() => {
+      // Jika edit, pertahankan urutan yang ada
+      if (props.experience?.sort_order !== undefined && props.experience?.sort_order !== null) {
+        return props.experience.sort_order
+      }
+      return 1 // fallback jika perlu
+    })(),
+  }
+
+  // Jika item baru (bukan edit), posisikan otomatis di urutan paling akhir untuk tipe kategori yang sama (education / work)
+  if (!props.experience?.id) {
+    try {
+      const { data: latest } = await supabase
+        .from('experiences')
+        .select('sort_order')
+        .eq('type', form.type)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+      payload.sort_order = ((latest?.[0]?.sort_order ?? 0) + 1)
+    } catch (e) {
+      payload.sort_order = 999
+    }
   }
 
   try {
@@ -251,22 +269,6 @@ async function handleSubmit() {
             :max-images="4"
             aspect-ratio="16:9"
           />
-        </div>
-
-        <!-- Sort Order -->
-        <div>
-          <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">
-            Urutan Tampilan
-          </label>
-          <input
-            v-model.number="form.sort_order"
-            type="number"
-            placeholder="0"
-            class="w-full px-4 py-2.5 bg-surface-raised border border-border/80 rounded-xl text-ink text-sm focus:outline-none focus:border-accent transition-colors"
-          />
-          <p class="text-[11px] text-ink-muted/80 mt-1">
-            Tip: Urutan dapat juga diatur langsung dengan tombol Naikkan (▲) dan Turunkan (▼) pada daftar riwayat di admin.
-          </p>
         </div>
       </form>
 

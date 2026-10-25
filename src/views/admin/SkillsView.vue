@@ -31,7 +31,6 @@ async function fetchAdminSkills() {
       .from('skills')
       .select('*')
       .order('sort_order', { ascending: true })
-      .order('category', { ascending: true })
 
     if (error) throw error
     skills.value = data || []
@@ -101,30 +100,37 @@ async function moveOrder(currentIndex, direction) {
   const itemA = currentList[currentIndex]
   const itemB = currentList[targetIndex]
 
-  // Salin dan tukar posisi di array skills
-  const idxA = skills.value.findIndex((s) => s.id === itemA.id)
-  const idxB = skills.value.findIndex((s) => s.id === itemB.id)
+  const globalIdxA = skills.value.findIndex((s) => s.id === itemA.id)
+  const globalIdxB = skills.value.findIndex((s) => s.id === itemB.id)
 
-  if (idxA !== -1 && idxB !== -1) {
-    const tempOrder = itemA.sort_order
-    itemA.sort_order = itemB.sort_order
-    itemB.sort_order = tempOrder
-
-    // Normalisasi jika nilainya sama atau belum terurut
-    if (itemA.sort_order === itemB.sort_order) {
-      itemA.sort_order = targetIndex + 1
-      itemB.sort_order = currentIndex + 1
-    }
+  if (globalIdxA === -1 || globalIdxB === -1) {
+    isReordering.value = false
+    return
   }
 
-  try {
-    // Simpan perubahan ke Supabase
-    await supabase.from('skills').update({ sort_order: itemA.sort_order }).eq('id', itemA.id)
-    await supabase.from('skills').update({ sort_order: itemB.sort_order }).eq('id', itemB.id)
+  // Tukar posisi di array skills global
+  const updated = [...skills.value]
+  const [moved] = updated.splice(globalIdxA, 1)
+  updated.splice(globalIdxB, 0, moved)
 
-    statusMessage.value = `Urutan skill "${itemA.name}" berhasil dipindah.`
+  skills.value = updated
+
+  try {
+    // Terapkan sort_order sekuensial unik 1, 2, 3...
+    for (let i = 0; i < updated.length; i++) {
+      const item = updated[i]
+      const newOrder = i + 1
+      if (item.sort_order !== newOrder) {
+        await supabase
+          .from('skills')
+          .update({ sort_order: newOrder })
+          .eq('id', item.id)
+        item.sort_order = newOrder
+      }
+    }
+
+    statusMessage.value = `Urutan skill "${itemA.name}" berhasil dipindah (ke #${targetIndex + 1}).`
     setTimeout(() => (statusMessage.value = ''), 3000)
-    await fetchAdminSkills()
   } catch (err) {
     console.error('[SkillsView] Gagal update urutan:', err)
     alert('Gagal memperbarui urutan skill: ' + err.message)
@@ -146,10 +152,10 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold font-heading text-ink">Kelola Keahlian (Skills)</h1>
         <p class="text-ink-muted text-sm mt-1">
-          Daftar teknologi, bahasa pemrograman, dan tools. Urutan kartu di bawah menentukan posisi tampilan di web utama.
+          Daftar teknologi, bahasa pemrograman, dan tools. Urutan baris di bawah menentukan posisi tampilan di web utama.
         </p>
       </div>
-      <BaseButton variant="primary" @click="openCreateModal" class="self-start sm:self-auto">
+      <BaseButton variant="primary" @click="openCreateModal" class="self-start sm:self-auto cursor-pointer">
         <Plus class="w-4 h-4 mr-2" />
         Tambah Skill
       </BaseButton>
@@ -199,12 +205,18 @@ onMounted(() => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-if="loading" class="bg-surface-alt border border-border/80 rounded-2xl overflow-hidden divide-y divide-border/60">
       <div
         v-for="i in 6"
         :key="i"
-        class="h-28 rounded-2xl bg-surface-alt border border-border/60 animate-pulse p-4"
-      />
+        class="h-16 px-5 flex items-center gap-4 animate-pulse bg-surface-alt"
+      >
+        <div class="w-20 h-8 rounded-lg bg-surface-raised" />
+        <div class="w-9 h-9 rounded-xl bg-surface-raised shrink-0" />
+        <div class="w-44 h-5 rounded bg-surface-raised" />
+        <div class="flex-1 h-2 rounded-full bg-surface-raised" />
+        <div class="w-16 h-8 rounded-lg bg-surface-raised" />
+      </div>
     </div>
 
     <!-- Empty State -->
@@ -219,63 +231,57 @@ onMounted(() => {
       <p class="text-ink-muted text-sm mt-1 max-w-sm mx-auto">
         {{ searchQuery || selectedCategory !== 'All' ? 'Tidak ada skill yang cocok dengan kriteria pencarian.' : 'Belum ada data skill di database. Tambahkan sekarang.' }}
       </p>
-      <BaseButton v-if="!searchQuery && selectedCategory === 'All'" variant="outline" @click="openCreateModal" class="mt-4">
+      <BaseButton v-if="!searchQuery && selectedCategory === 'All'" variant="outline" @click="openCreateModal" class="mt-4 cursor-pointer">
         <Plus class="w-4 h-4 mr-2" />
         Tambah Skill Pertama
       </BaseButton>
     </div>
 
-    <!-- Skills Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div
-        v-for="(skill, index) in filteredSkills"
-        :key="skill.id"
-        class="bg-surface-alt border border-border/80 rounded-2xl p-4 sm:p-5 hover:border-accent/60 transition-all flex flex-col justify-between group shadow-sm"
-      >
-        <div>
-          <div class="flex items-start justify-between gap-3 mb-3">
-            <div class="flex items-center gap-2.5">
-              <!-- Order Controls -->
-              <div class="flex flex-col items-center justify-center gap-0.5 bg-surface-raised border border-border/80 rounded-lg p-1 min-w-[34px] shrink-0">
-                <button
-                  type="button"
-                  :disabled="index === 0 || isReordering"
-                  class="p-0.5 rounded hover:bg-accent/20 text-ink-muted hover:text-accent disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  title="Naikkan ke posisi atas"
-                  @click="moveOrder(index, 'up')"
-                >
-                  <ArrowUp class="w-3.5 h-3.5" />
-                </button>
-                <span class="text-[10px] font-mono font-bold text-accent">#{{ index + 1 }}</span>
-                <button
-                  type="button"
-                  :disabled="index === filteredSkills.length - 1 || isReordering"
-                  class="p-0.5 rounded hover:bg-accent/20 text-ink-muted hover:text-accent disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  title="Turunkan ke posisi bawah"
-                  @click="moveOrder(index, 'down')"
-                >
-                  <ArrowDown class="w-3.5 h-3.5" />
-                </button>
-              </div>
+    <!-- Skills List View -->
+    <div v-else class="bg-surface-alt border border-border/80 rounded-2xl overflow-hidden shadow-sm">
+      <!-- List Header (Desktop) -->
+      <div class="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border/80 bg-surface-raised/50 text-[11px] font-mono uppercase tracking-wider text-ink-muted">
+        <div class="col-span-2 flex items-center justify-center">Urutan</div>
+        <div class="col-span-4">Skill & Kategori</div>
+        <div class="col-span-4">Tingkat Kemahiran</div>
+        <div class="col-span-2 text-right">Aksi</div>
+      </div>
 
-              <!-- Tech Initials Box -->
-              <div class="w-9 h-9 rounded-xl bg-surface-raised border border-border flex items-center justify-center text-accent text-xs font-mono font-bold shrink-0">
-                {{ skill.name.slice(0, 2).toUpperCase() }}
-              </div>
-
-              <div>
-                <h4 class="font-medium text-ink text-sm group-hover:text-accent transition-colors">
-                  {{ skill.name }}
-                </h4>
-                <div class="mt-0.5">
-                  <BaseBadge variant="neutral" size="sm">
-                    {{ skill.category }}
-                  </BaseBadge>
-                </div>
-              </div>
+      <!-- List Rows -->
+      <div class="divide-y divide-border/60">
+        <div
+          v-for="(skill, index) in filteredSkills"
+          :key="skill.id"
+          class="px-4 sm:px-5 py-3 hover:bg-surface-raised/40 transition-colors flex flex-col md:grid md:grid-cols-12 md:items-center gap-3 md:gap-4 group"
+        >
+          <!-- Col 1: Urutan & Controls -->
+          <div class="md:col-span-2 flex items-center justify-between md:justify-center gap-2">
+            <div class="flex items-center gap-1 bg-surface-raised border border-border/80 rounded-lg p-1">
+              <button
+                type="button"
+                :disabled="index === 0 || isReordering"
+                class="p-1 rounded hover:bg-accent/20 text-ink-muted hover:text-accent disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Naikkan ke posisi atas"
+                @click="moveOrder(index, 'up')"
+              >
+                <ArrowUp class="w-3.5 h-3.5" />
+              </button>
+              <span class="text-xs font-mono font-bold text-accent min-w-[32px] text-center">
+                #{{ skill.sort_order || (index + 1) }}
+              </span>
+              <button
+                type="button"
+                :disabled="index === filteredSkills.length - 1 || isReordering"
+                class="p-1 rounded hover:bg-accent/20 text-ink-muted hover:text-accent disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Turunkan ke posisi bawah"
+                @click="moveOrder(index, 'down')"
+              >
+                <ArrowDown class="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
+            <!-- Mobile Actions (visible only on small screens) -->
+            <div class="flex items-center gap-1 md:hidden">
               <button
                 @click="openEditModal(skill)"
                 title="Edit Skill"
@@ -292,19 +298,61 @@ onMounted(() => {
               </button>
             </div>
           </div>
-        </div>
 
-        <!-- Proficiency Progress Bar -->
-        <div class="mt-2 pt-3 border-t border-border/50">
-          <div class="flex justify-between text-xs text-ink-muted font-mono mb-1.5">
-            <span>Tingkat Kemahiran</span>
-            <span class="text-ink font-medium">{{ skill.level }}%</span>
+          <!-- Col 2: Skill & Kategori -->
+          <div class="md:col-span-4 flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-surface-raised border border-border/80 flex items-center justify-center text-accent text-xs font-mono font-bold shrink-0 overflow-hidden p-1">
+              <img
+                v-if="skill.icon_url && !skill.icon_url.startsWith('file:')"
+                :src="skill.icon_url"
+                :alt="skill.name"
+                class="w-full h-full object-contain"
+                @error="$event.target.style.display = 'none'"
+              />
+              <span v-else>{{ skill.name.slice(0, 2).toUpperCase() }}</span>
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-semibold text-ink text-sm truncate group-hover:text-accent transition-colors">
+                {{ skill.name }}
+              </h4>
+              <div class="mt-0.5">
+                <BaseBadge variant="neutral" size="sm">
+                  {{ skill.category }}
+                </BaseBadge>
+              </div>
+            </div>
           </div>
-          <div class="w-full h-1.5 bg-surface-raised rounded-full overflow-hidden">
-            <div
-              class="h-full bg-accent transition-all duration-500 rounded-full"
-              :style="{ width: `${skill.level}%` }"
-            />
+
+          <!-- Col 3: Tingkat Kemahiran -->
+          <div class="md:col-span-4 flex flex-col justify-center">
+            <div class="flex justify-between items-center text-xs font-mono text-ink-muted mb-1">
+              <span>Kemahiran</span>
+              <span class="text-ink font-semibold">{{ skill.level }}%</span>
+            </div>
+            <div class="w-full h-2 bg-surface-raised rounded-full overflow-hidden border border-border/40">
+              <div
+                class="h-full bg-accent transition-all duration-300 rounded-full"
+                :style="{ width: `${skill.level}%` }"
+              />
+            </div>
+          </div>
+
+          <!-- Col 4: Desktop Actions -->
+          <div class="hidden md:flex md:col-span-2 items-center justify-end gap-1.5">
+            <button
+              @click="openEditModal(skill)"
+              title="Edit Skill"
+              class="p-1.5 rounded-lg text-ink-muted hover:text-accent hover:bg-surface-raised border border-transparent hover:border-border/80 transition-colors cursor-pointer"
+            >
+              <Edit3 class="w-4 h-4" />
+            </button>
+            <button
+              @click="handleDelete(skill)"
+              title="Hapus Skill"
+              class="p-1.5 rounded-lg text-ink-muted hover:text-red-400 hover:bg-red-950/40 border border-transparent hover:border-red-900/50 transition-colors cursor-pointer"
+            >
+              <Trash2 class="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

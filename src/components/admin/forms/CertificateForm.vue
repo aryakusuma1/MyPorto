@@ -26,8 +26,7 @@ const form = reactive({
   credential_url: '',
   image_url: '',
   description: '',
-  sort_order: 0,
-})
+  })
 
 watch(
   () => props.certificate,
@@ -41,8 +40,7 @@ watch(
       form.credential_url = val.credential_url || ''
       form.image_url = val.image_url || ''
       form.description = val.description || ''
-      form.sort_order = val.sort_order || 0
-    }
+          }
   },
   { immediate: true }
 )
@@ -65,7 +63,26 @@ async function handleSubmit() {
     credential_url: form.credential_url.trim() || null,
     image_url: form.image_url || null,
     description: form.description.trim() || null,
-    sort_order: Number(form.sort_order) || 0,
+    sort_order: (() => {
+      if (props.certificate?.sort_order !== undefined && props.certificate?.sort_order !== null) {
+        return props.certificate.sort_order
+      }
+      return 1
+    })(),
+  }
+
+  // Jika item baru (bukan edit), posisikan otomatis di urutan paling akhir
+  if (!props.certificate?.id) {
+    try {
+      const { data: latest } = await supabase
+        .from('certificates')
+        .select('sort_order')
+        .order('sort_order', { ascending: false })
+        .limit(1)
+      payload.sort_order = ((latest?.[0]?.sort_order ?? 0) + 1)
+    } catch (e) {
+      payload.sort_order = 999
+    }
   }
 
   try {

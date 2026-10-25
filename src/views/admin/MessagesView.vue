@@ -10,6 +10,8 @@ import {
   Clock,
   Send,
   User,
+  Copy,
+  Check,
 } from 'lucide-vue-next'
 import { supabase } from '../../lib/supabase'
 import BaseButton from '../../components/ui/BaseButton.vue'
@@ -100,10 +102,32 @@ function formatDate(dateStr) {
   })
 }
 
-function getReplyMailto(msg) {
-  if (!msg) return '#'
-  const subject = encodeURIComponent('Re: Kontak Portofolio Arya')
-  return `mailto:${msg.email}?subject=${subject}`
+const isEmailCopied = ref(false)
+
+function copyEmail(email) {
+  if (!email || !navigator.clipboard) return
+  navigator.clipboard.writeText(email).then(() => {
+    isEmailCopied.value = true
+    setTimeout(() => {
+      isEmailCopied.value = false
+    }, 2500)
+  }).catch(() => {})
+}
+
+function handleReplyEmail(msg) {
+  if (!msg) return
+  const subject = encodeURIComponent(`Re: Kontak Portofolio Arya - ${msg.name}`)
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+
+  if (isMobile) {
+    window.location.href = `mailto:${msg.email}?subject=${subject}`
+  } else {
+    window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${subject}`,
+      '_blank',
+      'noopener,noreferrer'
+    )
+  }
 }
 
 onMounted(() => {
@@ -317,12 +341,15 @@ onMounted(() => {
             <div class="flex items-center gap-2">
               <Mail class="w-4 h-4 text-accent" />
               <span class="text-xs text-ink-muted uppercase tracking-wider font-medium">Email:</span>
-              <a
-                :href="`mailto:${selectedMessage.email}`"
-                class="text-sm text-accent hover:underline font-mono"
+              <button
+                type="button"
+                @click="handleReplyEmail(selectedMessage)"
+                class="text-sm text-accent hover:underline font-mono cursor-pointer flex items-center gap-1.5"
+                title="Buka untuk membalas email"
               >
-                {{ selectedMessage.email }}
-              </a>
+                <span>{{ selectedMessage.email }}</span>
+                <ExternalLink class="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
 
@@ -343,12 +370,28 @@ onMounted(() => {
             Tutup
           </BaseButton>
 
-          <a :href="getReplyMailto(selectedMessage)" target="_blank" class="inline-flex">
-            <BaseButton variant="primary">
+          <div class="flex items-center gap-2.5">
+            <BaseButton
+              variant="secondary"
+              size="md"
+              @click="copyEmail(selectedMessage.email)"
+              class="cursor-pointer"
+            >
+              <Check v-if="isEmailCopied" class="w-4 h-4 mr-1.5 text-green-400" />
+              <Copy v-else class="w-4 h-4 mr-1.5" />
+              <span>{{ isEmailCopied ? 'Email Tersalin!' : 'Salin Email' }}</span>
+            </BaseButton>
+
+            <BaseButton
+              variant="primary"
+              size="md"
+              @click="handleReplyEmail(selectedMessage)"
+              class="cursor-pointer shadow-lg hover:shadow-accent/25"
+            >
               <Send class="w-4 h-4 mr-2" />
               Balas Pesan via Email
             </BaseButton>
-          </a>
+          </div>
         </div>
       </div>
     </div>

@@ -6,6 +6,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  iconUrl: {
+    type: String,
+    default: '',
+  },
   class: {
     type: String,
     default: 'w-10 h-10',
@@ -20,8 +24,17 @@ const normalizedName = computed(() => {
 
 <template>
   <div :class="['inline-flex items-center justify-center shrink-0', props.class]">
+    <!-- Custom Icon URL / Uploaded Image / External SVG -->
+    <img
+      v-if="iconUrl && !iconUrl.startsWith('file:')"
+      :src="iconUrl"
+      :alt="props.name"
+      class="w-full h-full object-contain"
+      loading="lazy"
+    />
+
     <!-- Vue.js -->
-    <svg v-if="normalizedName.includes('vue')" viewBox="0 0 128 128" class="w-full h-full">
+    <svg v-else-if="normalizedName.includes('vue')" viewBox="0 0 128 128" class="w-full h-full">
       <path fill="#42b883" d="M78.8 10.4L64 36 49.2 10.4H0l64 110.8L128 10.4z" />
       <path fill="#35495e" d="M78.8 10.4L64 36 49.2 10.4H25.6L64 77l38.4-66.6z" />
     </svg>

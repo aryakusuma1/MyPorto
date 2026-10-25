@@ -11,7 +11,8 @@ const { isVisible, observe } = useIntersection({ threshold: 0.2 })
 
 const groupedSkills = computed(() => {
   const groups = {}
-  skillStore.skills.forEach((skill) => {
+  const sorted = [...skillStore.skills].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+  sorted.forEach((skill) => {
     const cat = skill.category || 'Lainnya'
     if (!groups[cat]) {
       groups[cat] = []

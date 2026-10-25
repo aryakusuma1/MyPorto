@@ -305,6 +305,37 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
   - [x] 8.16 Bangun Kontak Section 2-Kolom & Dual-Delivery Messaging (`ContactSection.vue`): List kontak (Email, GitHub, LinkedIn, Instagram) di kolom kiri, Formulir kirim pesan interaktif di kolom kanan, integrasi pengiriman email instan + arsip Supabase `contact_messages`, dan field Instagram di `ProfileView.vue`
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9_
 
+  - [x] 8.17 Optimasi & Penyelarasan Ketinggian Kartu Formulir Kontak (`ContactSection.vue`): Sejajarkan tinggi kartu formulir pesan dengan list kontak dan tulisan pengantar di kolom kiri (*equal-height symmetry*), terapkan grid 2-kolom untuk input nama & email, kurangi padding berlebih, dan rampingkan textarea agar tertata rapi
+    - _Requirements: 10.1, 10.2, 10.9_
+
+  - [x] 8.18 Refaktor CRUD Skill ke List Layout, Standarisasi Modal Pesan Masuk, dan Global Sort Order (`SkillsView.vue`, `SkillForm.vue`, `MessagesView.vue`, `skill.store.js`):
+    - Ubah kartu modal pesan masuk admin dari transparan/bening menjadi solid konsisten (`bg-surface-alt`, `bg-black/80 backdrop-blur-sm`).
+    - Ubah tampilan CRUD Skill dari kartu 3-kolom menjadi tabel list baris yang kompak dan mudah diatur urutannya.
+    - Perbaiki logika pengurutan skill: inisialisasi nomor urut sekuensial global (1..N) di database, terapkan sorting berdasarkan `sort_order` di store dan frontend, serta hapus batasan scoped helper text "dalam kategori yang sama".
+    - _Requirements: 8.1, 8.4, 10.9_
+
+  - [x] 8.19 Otomatisasi Posisi Akhir Item Baru & Penghapusan Input Manual Urutan (`SkillForm.vue`, `ExperienceForm.vue`, `CertificateForm.vue`, `ProjectForm.vue`):
+    - Hapus seluruh input field manual "Urutan Tampilan / Sort Order" dari semua modal form CRUD (Keahlian, Pendidikan, Pengalaman, Sertifikasi).
+    - Terapkan logika auto-append (`MAX(sort_order) + 1`): Setiap penambahan data baru otomatis ditempatkan di posisi paling akhir daftar (misal ada 1..4 maka data baru menjadi ke-5).
+    - Pertahankan nomor urut yang sudah ada saat edit data agar posisi tidak terganggu.
+    - _Requirements: 8.1, 8.4, 10.9_
+
+  - [x] 8.20 Preservasi Format Teks Multiline, Paragraf, dan Poin-Poin Riwayat (`JourneySection.vue`, `AboutSection.vue`):
+    - Terapkan kelas utilitas `whitespace-pre-line` pada seluruh elemen peraga deskripsi riwayat Pendidikan dan Pengalaman (baik layout desktop zigzag maupun mobile).
+    - Memastikan setiap enter/baris baru, jarak antar paragraf, dan daftar poin-poin yang diketik di CRUD admin tampil persis sesuai format aslinya pada halaman portofolio pengunjung.
+    - _Requirements: 6.1, 6.2, 6.3, 10.9_
+
+  - [x] 8.21 Refaktor Grid Keahlian Menjadi 6 Kolom Kompak (`JourneySection.vue`):
+    - Ubah tata letak kartu keahlian teknis dari 5 kolom menjadi 6 kolom per baris (`lg:grid-cols-6`) dengan kontainer `max-w-6xl`.
+    - Perkecil ukuran kartu keahlian (*compact squircle*): kurangi padding (`p-3.5 sm:p-4`), perkecil ukuran ikon teknologi (`w-11 h-11 sm:w-12 sm:h-12`), dan rapatkan jarak antar kartu (`gap-3 sm:gap-4`) agar tampil proporsional, rapi, dan padat.
+    - _Requirements: 7.1, 7.2, 10.9_
+
+  - [x] 8.22 Fitur Upload Ikon Keahlian Langsung & Preservasi Ikon Bawaan Otomatis (`SkillForm.vue`, `TechIcon.vue`, `JourneySection.vue`, `SkillsView.vue`):
+    - Ganti input teks/link manual pada form Keahlian dengan area upload file langsung (`SVG`, `PNG`, `WebP`) yang terintegrasi ke Supabase Storage (`portfolio-images/skills/`).
+    - Pertahankan fitur fallback otomatis: jika form dikosongkan (tidak mengunggah ikon), sistem secara otomatis menggunakan ikon SVG resmi bawaan sesuai nama keahlian (Vue, React, PHP, Laravel, Tailwind, MySQL, PostgreSQL, dll.).
+    - Tampilkan live preview ikon bawaan di form ketika belum mengunggah, serta opsi ganti atau hapus ikon custom kapan saja.
+    - _Requirements: 7.1, 7.2, 10.9_
+
   - [ ] 8.9 Periksa tampilan responsif di mobile, tablet, desktop
   - [ ] 8.10 Periksa konsistensi warna, spacing, dan tipografi
   - [ ] 8.11 Pastikan semua navigation guard admin bekerja

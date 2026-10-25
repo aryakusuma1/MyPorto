@@ -29,8 +29,7 @@ const form = reactive({
   github_url: '',
   demo_url: '',
   tech_stack_input: '',
-  sort_order: 0,
-  // Detail fields
+    // Detail fields
   overview: '',
   architecture: '',
   diagram_url: '',
@@ -93,8 +92,7 @@ watch(
       form.cover_url = val.cover_url || ''
       form.github_url = val.github_url || ''
       form.demo_url = val.demo_url || ''
-      form.sort_order = val.sort_order ?? 0
-      form.tech_stack_input = Array.isArray(val.tech_stack) ? val.tech_stack.join(', ') : ''
+            form.tech_stack_input = Array.isArray(val.tech_stack) ? val.tech_stack.join(', ') : ''
 
       const details = val.project_details || {}
       form.overview = details.overview || ''
@@ -130,10 +128,29 @@ async function handleSubmit() {
     status: form.status,
     featured: form.featured,
     cover_url: form.cover_url || null,
-    sort_order: Number(form.sort_order) || 0,
+    sort_order: (() => {
+      if (props.project?.sort_order !== undefined && props.project?.sort_order !== null) {
+        return props.project.sort_order
+      }
+      return 1
+    })(),
     github_url: form.github_url.trim() || null,
     demo_url: form.demo_url.trim() || null,
     tech_stack: techStackArray,
+  }
+
+  // Jika item baru (bukan edit), posisikan otomatis di urutan paling akhir
+  if (!props.project?.id) {
+    try {
+      const { data: latest } = await supabase
+        .from('projects')
+        .select('sort_order')
+        .order('sort_order', { ascending: false })
+        .limit(1)
+      payload.sort_order = ((latest?.[0]?.sort_order ?? 0) + 1)
+    } catch (e) {
+      payload.sort_order = 999
+    }
   }
 
   try {
