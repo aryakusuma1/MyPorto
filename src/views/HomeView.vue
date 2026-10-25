@@ -9,12 +9,12 @@ import ContactSection from '../components/sections/ContactSection.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-surface text-ink flex flex-col">
+  <div class="min-h-screen bg-surface text-ink flex flex-col w-full max-w-full overflow-x-hidden">
     <!-- Sticky Navigation Bar -->
     <AppNavbar />
 
     <!-- Main Content One-Page Sections -->
-    <main class="flex-1">
+    <main class="flex-1 w-full max-w-full overflow-x-hidden">
       <HeroSection />
       <AboutSection />
       <JourneySection />

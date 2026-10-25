@@ -386,3 +386,12 @@ WHEN Admin berhasil login, THE App SHALL redirect ke `/admin/dashboard`.
 - **Preservasi Ikon Bawaan (*Graceful Fallback*)**:
   - Jika pengguna tidak mengunggah gambar kustom, sistem tetap mempertahankan ikon SVG bawaan resmi yang terdaftar pada `TechIcon.vue` berdasarkan nama skill.
   - Komponen form menyediakan kotak pratinjau langsung yang mengindikasikan apakah ikon bawaan aktif atau ikon kustom sedang terpasang.
+
+### 7.11 Mobile Viewport Lock & Responsive Tab Switcher (JourneySection)
+- **Viewport Lock**:
+  - Diterapkan `overflow-x: hidden` dan `max-width: 100%` pada `html, body` di `main.css`, serta `w-full max-w-full overflow-x-hidden` pada root `HomeView.vue`.
+  - Mengunci viewport mobile secara presisi agar tidak terjadi pergeseran horizontal (*horizontal swipe/scrollbar*) pada perangkat layar sentuh.
+- **Responsive Pill Tab Switcher (`JourneySection.vue`)**:
+  - Di layar mobile: Padding dikurangi menjadi `p-1.5` pada container dan `py-2 px-1.5` pada button.
+  - Tipografi tombol diatur ke `text-xs sm:text-base font-semibold` dengan ikon `w-3.5 h-3.5 sm:w-5 sm:h-5` dan gap `gap-1 sm:gap-2.5`.
+  - Dilengkapi `min-w-0` dan `truncate` sehingga ketiga tombol (Pendidikan, Pengalaman, Keahlian) muat 100% utuh tanpa terpotong di layar HP berdimensi 360px ke atas.

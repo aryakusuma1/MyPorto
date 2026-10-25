@@ -139,7 +139,7 @@ onUnmounted(() => {
 <template>
   <section
     id="hero"
-    class="min-h-[85vh] flex items-center justify-center py-16 sm:py-24"
+    class="min-h-[85vh] flex items-center justify-center py-16 sm:py-24 relative overflow-hidden"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
       <!-- Loading Skeleton State -->
