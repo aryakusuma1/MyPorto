@@ -336,9 +336,9 @@ Implementasi dilakukan secara bertahap: dimulai dari setup proyek dan koneksi Su
     - Tampilkan live preview ikon bawaan di form ketika belum mengunggah, serta opsi ganti atau hapus ikon custom kapan saja.
     - _Requirements: 7.1, 7.2, 10.9_
 
-  - [ ] 8.9 Periksa tampilan responsif di mobile, tablet, desktop
-  - [ ] 8.10 Periksa konsistensi warna, spacing, dan tipografi
-  - [ ] 8.11 Pastikan semua navigation guard admin bekerja
+  - [x] 8.9 Periksa tampilan responsif di mobile, tablet, desktop
+  - [x] 8.10 Periksa konsistensi warna, spacing, dan tipografi
+  - [x] 8.11 Pastikan semua navigation guard admin bekerja
   - [ ] 8.12 Deploy ke Vercel dengan environment variables yang benar (setelah user menyetujui)
   - _Requirements: semua_
 
