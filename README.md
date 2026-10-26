@@ -76,4 +76,4 @@ Website ini memiliki halaman manajemen privat khusus pemilik portofolio untuk me
 
 ---
 
-*Hak Cipta © 2026 Arya Kusuma. Dibuat dengan dedikasi untuk portofolio digital yang profesional.*
+*Hak Cipta © 2026 Arya Kusuma.*
