@@ -1,4 +1,4 @@
-# 🌐 Web Portofolio Personal & Dashboard Admin — Arya Kusuma
+# 🌐 Web Portofolio & Dashboard Admin — Arya Kusuma
 
 [![Website Live](https://img.shields.io/badge/Website%20Live-aryaksm.my.id-ff6b00?style=for-the-badge&logo=vercel&logoColor=white)](https://aryaksm.my.id)
 [![Vue 3](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
